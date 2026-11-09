@@ -1,0 +1,69 @@
+{
+  "dataset": "Anemia Types Classification (Ehab Aboelnaga, Kaggle, Apache 2.0)",
+  "dataset_url": "https://www.kaggle.com/datasets/ehababoelnaga/anemia-types-classification",
+  "n_rows": 1281,
+  "features_used": [
+    "WBC",
+    "RBC",
+    "HGB",
+    "MCV",
+    "MCH",
+    "PLT"
+  ],
+  "features_dropped_as_unreliable": [
+    "LYMp",
+    "NEUTp",
+    "LYMn",
+    "NEUTn",
+    "HCT",
+    "MCHC",
+    "PDW",
+    "PCT"
+  ],
+  "classes": [
+    "Healthy",
+    "Iron deficiency anemia",
+    "Leukemia",
+    "Leukemia with thrombocytopenia",
+    "Macrocytic anemia",
+    "Normocytic hypochromic anemia",
+    "Normocytic normochromic anemia",
+    "Other microcytic anemia",
+    "Thrombocytopenia"
+  ],
+  "class_counts": {
+    "Healthy": 336,
+    "Normocytic hypochromic anemia": 279,
+    "Normocytic normochromic anemia": 269,
+    "Iron deficiency anemia": 189,
+    "Thrombocytopenia": 73,
+    "Other microcytic anemia": 59,
+    "Leukemia": 47,
+    "Macrocytic anemia": 18,
+    "Leukemia with thrombocytopenia": 11
+  },
+  "train_size": 1024,
+  "test_size": 257,
+  "random_state": 42,
+  "results": {
+    "Logistic Regression": {
+      "accuracy": 0.6342,
+      "precision_macro": 0.5389,
+      "recall_macro": 0.7086,
+      "f1_macro": 0.5662
+    },
+    "Random Forest": {
+      "accuracy": 0.9572,
+      "precision_macro": 0.9773,
+      "recall_macro": 0.9689,
+      "f1_macro": 0.9727
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.9533,
+      "precision_macro": 0.8499,
+      "recall_macro": 0.8525,
+      "f1_macro": 0.851
+    }
+  },
+  "best_model": "Random Forest"
+}

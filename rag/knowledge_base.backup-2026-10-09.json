@@ -1,0 +1,292 @@
+[
+  {
+    "id": "cbc-hgb-hct-rbc-low",
+    "test_type": "CBC",
+    "parameters": ["Hemoglobin", "Hematocrit", "Red Blood Cell Count"],
+    "flag": "LOW",
+    "title": "Low hemoglobin, hematocrit, or red blood cell count (possible anemia)",
+    "content": "A low hemoglobin, hematocrit, or red blood cell count can point to anemia, but it can also come from dehydration, heart disease, or not having enough iron in the body. On its own this single result cannot say which of these it is. General guidance for a patient facing this finding: eating iron-rich foods (leafy greens, beans, red meat) and staying well hydrated are reasonable everyday steps, but the underlying cause needs a doctor's evaluation, since anemia treatment depends entirely on what is causing it.",
+    "source_title": "Complete Blood Count (CBC): MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/"
+  },
+  {
+    "id": "cbc-wbc-low",
+    "test_type": "CBC",
+    "parameters": ["White Blood Cell Count"],
+    "flag": "LOW",
+    "title": "Low white blood cell count",
+    "content": "A low white blood cell count can be a sign of an autoimmune disorder, a bone marrow problem, or in less common cases something more serious like cancer. It does not diagnose any of these by itself. General guidance: a low white count can mean the body is less able to fight infection, so a patient with this finding should be attentive to signs of infection (fever, unusual fatigue) and see a doctor for further evaluation rather than assume the cause.",
+    "source_title": "Complete Blood Count (CBC): MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/"
+  },
+  {
+    "id": "cbc-wbc-high",
+    "test_type": "CBC",
+    "parameters": ["White Blood Cell Count"],
+    "flag": "HIGH",
+    "title": "High white blood cell count",
+    "content": "A high white blood cell count is most often a sign that the body is fighting an infection, or it can be a reaction to a medicine. General guidance: rest, hydration, and monitoring for infection symptoms (fever, pain, redness) are reasonable everyday steps, but a doctor should confirm the cause, especially if the count stays high or symptoms worsen.",
+    "source_title": "Complete Blood Count (CBC): MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/"
+  },
+  {
+    "id": "cbc-platelet-low",
+    "test_type": "CBC",
+    "parameters": ["Platelet Count"],
+    "flag": "LOW",
+    "title": "Low platelet count (thrombocytopenia)",
+    "content": "A low platelet count (thrombocytopenia) raises the risk of bleeding, from mild bruising to more serious internal or external bleeding depending on how low the count is. General guidance: patients with a low platelet count should avoid activities with a high risk of injury and mention any unusual bruising or bleeding to their doctor. Mild cases may need no treatment; more serious cases may require medication or a platelet transfusion, which only a doctor can determine.",
+    "source_title": "Platelet Disorders: MedlinePlus",
+    "source_url": "https://medlineplus.gov/plateletdisorders.html"
+  },
+  {
+    "id": "cbc-platelet-high",
+    "test_type": "CBC",
+    "parameters": ["Platelet Count"],
+    "flag": "HIGH",
+    "title": "High platelet count (thrombocytosis)",
+    "content": "A high platelet count raises the risk of blood clots. It can occur with no clear cause (thrombocythemia, which is rare and may need no treatment if there are no symptoms) or as a reaction to another underlying condition (thrombocytosis), in which case treatment depends on treating that condition. General guidance: this finding is worth discussing with a doctor rather than managing on one's own, since the right next step depends entirely on the cause.",
+    "source_title": "Platelet Disorders: MedlinePlus",
+    "source_url": "https://medlineplus.gov/plateletdisorders.html"
+  },
+  {
+    "id": "ua-protein-high",
+    "test_type": "UA",
+    "parameters": ["Protein"],
+    "flag": "ABNORMAL",
+    "title": "Protein in urine (proteinuria)",
+    "content": "Protein appearing in urine, especially at a high or repeated level, can be an early sign that the kidneys' filtering function is being affected, and is also linked to conditions like diabetes and high blood pressure that raise kidney disease risk. It can also be temporary, caused by exercise, dehydration, diet, stress, or pregnancy. General guidance: because early detection of kidney involvement matters for treatment, a patient with protein in their urine should follow up with a doctor, who may repeat the test or order further kidney function tests.",
+    "source_title": "Protein in Urine: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/protein-in-urine/"
+  },
+  {
+    "id": "ua-blood-high",
+    "test_type": "UA",
+    "parameters": ["Blood"],
+    "flag": "ABNORMAL",
+    "title": "Blood in urine (hematuria)",
+    "content": "Blood in urine is usually not an emergency but does need to be investigated, since it can come from a urinary tract or kidney infection, bladder or kidney stones, or less commonly more serious causes, as well as harmless causes like intense exercise or menstruation. General guidance: a patient with blood detected in their urine should let their doctor know so the cause can be identified, particularly mentioning if they were menstruating or have bleeding hemorrhoids at the time of the test, since these can affect the result.",
+    "source_title": "Blood in Urine: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/blood-in-urine/"
+  },
+  {
+    "id": "ua-nitrites-glucose-uti",
+    "test_type": "UA",
+    "parameters": ["Bacteria", "White Blood Cells"],
+    "flag": "ABNORMAL",
+    "title": "Signs suggestive of a urinary tract infection (bacteria/nitrites, white blood cells)",
+    "content": "Bacteria in the urine, together with elevated white blood cells, commonly points to a urinary tract infection (UTI). A negative result does not fully rule out a UTI, since some UTI-causing bacteria do not produce the chemical signal this kind of test detects. General guidance: if a patient has UTI symptoms (burning with urination, urgency, frequency, lower abdominal discomfort), they should see a doctor promptly for treatment, since an untreated UTI can spread to the kidneys and become more serious. A urine culture may be ordered to confirm the specific bacteria and guide antibiotic choice.",
+    "source_title": "Nitrites in Urine: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/nitrites-in-urine/"
+  },
+  {
+    "id": "ua-glucose-high",
+    "test_type": "UA",
+    "parameters": ["Glucose"],
+    "flag": "ABNORMAL",
+    "title": "Glucose in urine",
+    "content": "Urine normally contains very little glucose, since the kidneys usually reclaim it back into the bloodstream. Glucose showing up in urine most often reflects a high blood glucose level and diabetes is the most common cause. A urine glucose result alone cannot diagnose diabetes. General guidance: this finding should prompt blood-based glucose testing (fasting blood sugar or HbA1c) with a doctor to determine whether diabetes or prediabetes is present.",
+    "source_title": "Glucose in Urine: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/glucose-in-urine-test/"
+  },
+  {
+    "id": "fbs-glucose-high",
+    "test_type": "FBS",
+    "parameters": ["Blood Glucose"],
+    "flag": "HIGH",
+    "title": "High fasting blood glucose (hyperglycemia)",
+    "content": "A high fasting blood glucose result can indicate prediabetes or diabetes, where the body either cannot make enough insulin or cannot use it effectively, allowing glucose to build up in the blood. Other, less common causes include thyroid problems, pancreatic conditions, and acute stress responses. General guidance: a healthy diet lower in refined sugar, regular physical activity, and weight management are reasonable everyday steps, but a repeat test or additional diabetes testing with a doctor is needed to confirm a diagnosis and decide on treatment.",
+    "source_title": "Blood Glucose Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/blood-glucose-test/"
+  },
+  {
+    "id": "fbs-glucose-low",
+    "test_type": "FBS",
+    "parameters": ["Blood Glucose"],
+    "flag": "LOW",
+    "title": "Low blood glucose (hypoglycemia)",
+    "content": "Low blood glucose is most often related to diabetes medications, including insulin, when a person already has diabetes. In someone without diabetes, it can be caused by kidney or liver disease, adrenal gland problems, or thyroid issues. General guidance: eating a small amount of fast-acting sugar (like juice or glucose tablets) can help with an acute low, but a pattern of low readings should be discussed with a doctor, especially for someone on diabetes medication, since it may mean the treatment plan needs adjusting.",
+    "source_title": "Blood Glucose Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/blood-glucose-test/"
+  },
+  {
+    "id": "hba1c-high",
+    "test_type": "HBA1C",
+    "parameters": ["HbA1c"],
+    "flag": "HIGH",
+    "title": "High HbA1c (prediabetes or diabetes)",
+    "content": "A high HbA1c result, which reflects average blood sugar over roughly the past three months, points to either prediabetes or diabetes. The encouraging note is that both prediabetes and type 2 diabetes can often be managed, and sometimes substantially improved, through lifestyle changes: a healthier diet, weight loss, and regular exercise, alongside any medication a doctor prescribes. General guidance: this result should be discussed with a doctor to confirm the diagnosis and build a management plan, and blood sugar should be monitored as often as the doctor recommends.",
+    "source_title": "Diabetes Tests: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/diabetes-tests/"
+  },
+  {
+    "id": "lipid-cholesterol-high",
+    "test_type": "LIPID",
+    "parameters": ["Total Cholesterol", "LDL Cholesterol"],
+    "flag": "HIGH",
+    "title": "High total or LDL cholesterol",
+    "content": "Too much LDL (\"bad\") cholesterol raises the risk of coronary artery disease and other heart problems, because it can build up as plaque in the arteries; if blood flow to the heart or brain becomes blocked, this can lead to a heart attack or stroke. General guidance: reducing foods high in saturated fat, getting regular physical activity, managing weight, not smoking, and limiting alcohol are the everyday steps most consistently recommended for lowering LDL and total cholesterol, alongside any medication a doctor may prescribe.",
+    "source_title": "Cholesterol Levels: What You Need to Know, MedlinePlus",
+    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels"
+  },
+  {
+    "id": "lipid-hdl-low",
+    "test_type": "LIPID",
+    "parameters": ["HDL Cholesterol"],
+    "flag": "LOW",
+    "title": "Low HDL cholesterol",
+    "content": "HDL (\"good\") cholesterol helps remove other cholesterol from the bloodstream, so a low HDL level is linked to higher cardiovascular risk. Regular physical activity can help raise HDL, while smoking is known to lower it, especially in women. General guidance: quitting smoking, staying physically active, and general heart-healthy habits are the main everyday steps; a doctor can advise whether medication is also warranted based on the full lipid profile.",
+    "source_title": "Cholesterol Levels: What You Need to Know, MedlinePlus",
+    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels"
+  },
+  {
+    "id": "lipid-triglycerides-high",
+    "test_type": "LIPID",
+    "parameters": ["Triglycerides"],
+    "flag": "HIGH",
+    "title": "High triglycerides",
+    "content": "High triglyceride levels are linked to an increased risk of heart disease, an association that has been noted as especially significant in women. General guidance: similar to high LDL, dietary changes (less sugar and refined carbohydrate, less alcohol), weight management, and regular exercise are the main everyday steps, and a doctor can advise on medication if lifestyle changes are not enough.",
+    "source_title": "Cholesterol Levels: What You Need to Know, MedlinePlus",
+    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels"
+  },
+  {
+    "id": "creat-high",
+    "test_type": "CREAT",
+    "parameters": ["Creatinine"],
+    "flag": "HIGH",
+    "title": "High creatinine",
+    "content": "High creatinine can be a sign of a kidney problem, including infection, reduced blood flow to the kidneys, a urinary tract blockage, or kidney failure, and can also occur with conditions like heart failure or diabetes that affect the kidneys. It is not always kidney-related, though: dehydration, muscle injuries or disorders, intense exercise, or a very high-meat diet can also raise it. General guidance: a single high creatinine result cannot diagnose a specific condition by itself; a doctor will likely want to repeat the test or order additional kidney function tests before concluding anything.",
+    "source_title": "Creatinine Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/creatinine-test/"
+  },
+  {
+    "id": "bun-high",
+    "test_type": "BUN",
+    "parameters": ["Blood Urea Nitrogen"],
+    "flag": "HIGH",
+    "title": "High blood urea nitrogen (BUN)",
+    "content": "A high BUN level is often a sign that the kidneys are not working as well as they should, though dehydration, burns, certain medications, a high-protein diet, or a recent heart attack can also raise it. A BUN test alone is only one piece of the picture of kidney function. General guidance: staying hydrated is a reasonable everyday step, but this result is best discussed with a doctor, who may order a creatinine test or other kidney function tests for a fuller picture.",
+    "source_title": "BUN (Blood Urea Nitrogen): MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/bun-blood-urea-nitrogen"
+  },
+  {
+    "id": "bun-low",
+    "test_type": "BUN",
+    "parameters": ["Blood Urea Nitrogen"],
+    "flag": "LOW",
+    "title": "Low blood urea nitrogen (BUN)",
+    "content": "Low BUN is less often a concern than a high result. It can reflect not getting enough protein in the diet, malnutrition, or liver disease. General guidance: if this result comes with signs of poor nutrition or known liver issues, it is worth raising with a doctor; a low BUN by itself, with no other symptoms, is often not significant.",
+    "source_title": "BUN (Blood Urea Nitrogen): MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/bun-blood-urea-nitrogen"
+  },
+  {
+    "id": "bua-high",
+    "test_type": "BUA",
+    "parameters": ["Uric Acid"],
+    "flag": "HIGH",
+    "title": "High uric acid",
+    "content": "High uric acid happens when the body makes too much of it or the kidneys cannot clear it fast enough, and it is linked to gout (painful joint swelling from needle-shaped crystal deposits), kidney stones, and in more serious cases kidney problems. Many people have a high uric acid level without any symptoms at all, so an elevated result does not automatically mean disease. General guidance: cutting back on high-purine foods (red meat, organ meats, shellfish), limiting alcohol and high-fructose corn syrup, and staying hydrated are reasonable everyday steps; a doctor can advise on whether medication is needed.",
+    "source_title": "Uric Acid Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/uric-acid-test"
+  },
+  {
+    "id": "sgot-ast-high",
+    "test_type": "SGOT_SGPT",
+    "parameters": ["SGOT / AST"],
+    "flag": "HIGH",
+    "title": "High AST (SGOT)",
+    "content": "A high AST level can point to liver problems such as hepatitis or cirrhosis, but it can also come from causes outside the liver, including heart issues, pancreatitis, certain medications (especially those toxic to the liver, alcohol included), or even recent surgery or seizures. An abnormal result does not automatically mean a medical condition needing treatment, since factors like pregnancy, exercise, medicines, age, and sex can all affect it. General guidance: this result is best interpreted by a doctor alongside the ALT (SGPT) result and the person's overall health picture, rather than on its own.",
+    "source_title": "AST Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/ast-test/"
+  },
+  {
+    "id": "sgpt-alt-high",
+    "test_type": "SGOT_SGPT",
+    "parameters": ["SGPT / ALT"],
+    "flag": "HIGH",
+    "title": "High ALT (SGPT)",
+    "content": "High ALT is released into the blood when liver cells are damaged, so an elevated level suggests possible liver injury or disease, such as hepatitis, cirrhosis, or reduced blood flow to the liver, and can also result from certain medications or toxins. As with AST, an abnormal result does not by itself mean a medical condition needing treatment, since age, sex, weight, medications, exercise, and other factors can affect it. General guidance: this result should be reviewed with a doctor, generally together with AST and other liver-related findings.",
+    "source_title": "ALT Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/alt-blood-test/"
+  },
+  {
+    "id": "electrolytes-abnormal",
+    "test_type": "ELECTROLYTES",
+    "parameters": ["Sodium", "Potassium", "Chloride"],
+    "flag": "ABNORMAL",
+    "title": "Abnormal sodium, potassium, or chloride level",
+    "content": "Sodium, potassium, and chloride levels outside the normal range can result from many different conditions, including dehydration, kidney disease, heart disease, diabetes, lung infections, liver disease, or acid-base imbalances in the blood; certain medications, such as diuretics (\"water pills\") and some antibiotics, can also shift these levels. An out-of-range result does not automatically mean there is a medical problem needing treatment. General guidance: because the possible causes are so varied and some electrolyte imbalances can affect heart rhythm, this finding should be discussed with a doctor rather than self-managed.",
+    "source_title": "Electrolyte Panel: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/electrolyte-panel/"
+  },
+  {
+    "id": "hbsag-reactive",
+    "test_type": "HBSAG",
+    "parameters": ["HBsAg"],
+    "flag": "ABNORMAL",
+    "title": "Reactive/positive HBsAg (hepatitis B)",
+    "content": "A reactive HBsAg result means the hepatitis B surface antigen was detected, which points to an active hepatitis B infection, either a recent (acute) infection or a long-standing (chronic) one; the initial test cannot tell which. General guidance: further testing is needed to determine whether the infection is acute or chronic and to guide next steps, so this finding should be followed up with a doctor rather than acted on alone.",
+    "source_title": "Hepatitis Testing: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/hepatitis-testing/"
+  },
+  {
+    "id": "syphilis-reactive",
+    "test_type": "SYPHILIS",
+    "parameters": ["Syphilis Screening Result"],
+    "flag": "ABNORMAL",
+    "title": "Reactive/positive syphilis screening result",
+    "content": "A positive syphilis screening result means antibodies were found that may indicate a syphilis infection, but a second, confirmatory test is needed before concluding this. If confirmed, syphilis is generally treated with penicillin, and antibiotic treatment cures most early-stage infections, though damage from later-stage disease cannot be reversed by treatment. General guidance: anyone confirmed positive should also inform recent sexual partners so they can be tested and treated, and should avoid sexual contact until a doctor confirms the infection has cleared.",
+    "source_title": "Syphilis Tests: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/syphilis-tests/"
+  },
+  {
+    "id": "hiv-reactive",
+    "test_type": "HIV",
+    "parameters": ["HIV Screening Result"],
+    "flag": "ABNORMAL",
+    "title": "Reactive/positive HIV screening result",
+    "content": "A positive HIV screening result means signs of HIV infection were found, but (except for a NAT test) a follow-up confirmatory test is needed before an HIV diagnosis is finalized. General guidance: the testing site or a doctor will arrange this confirmatory test. If confirmed, starting antiretroviral therapy (ART) promptly, even while still feeling healthy, is strongly recommended; ART cannot cure HIV but can reduce the virus to very low levels, helping preserve health and greatly reducing the chance of transmitting it to others.",
+    "source_title": "HIV Screening Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/hiv-screening-test"
+  },
+  {
+    "id": "dengue-reactive",
+    "test_type": "DENGUE",
+    "parameters": ["Dengue NS1", "Dengue IgM", "Dengue IgG"],
+    "flag": "ABNORMAL",
+    "title": "Positive dengue test (NS1, IgM, or IgG)",
+    "content": "A positive NS1 antigen or IgM result is generally treated as a presumptive sign of a recent dengue infection, though a positive IgM in a single sample is considered presumptive rather than fully confirmatory. A positive IgG alone reflects past exposure to dengue or a related virus and does not by itself confirm a current infection; distinguishing recent from past infection usually needs paired samples taken about two weeks apart. General guidance: dengue can range from mild to severe, so anyone with a positive result and symptoms (high fever, severe headache, joint or muscle pain, rash) should see a doctor promptly, stay well hydrated, and avoid medications like aspirin or ibuprofen that can increase bleeding risk, unless a doctor says otherwise.",
+    "source_title": "Serologic Tests for Dengue Virus, CDC",
+    "source_url": "https://www.cdc.gov/dengue/hcp/diagnosis-testing/serologic-tests-for-dengue-virus.html"
+  },
+  {
+    "id": "salmonella-typhi-positive",
+    "test_type": "SALMONELLA",
+    "parameters": ["Salmonella Typhi Result"],
+    "flag": "ABNORMAL",
+    "title": "Positive Salmonella Typhi result (typhoid fever)",
+    "content": "A positive Salmonella Typhi result means typhoid fever, a serious bacterial infection that needs prompt medical care. Antibiotics are the main treatment, help with faster recovery, and lower the risk of complications; without treatment, fever can persist for weeks or months and serious complications can develop. General guidance: antibiotics should be taken exactly as prescribed and for the full course, careful handwashing is important to avoid spreading the infection to others, and people who handle food or work in healthcare or childcare may need to wait for medical clearance before returning to those duties, since antibiotic resistance is also a growing concern that can affect treatment choice.",
+    "source_title": "Treating Typhoid Fever and Paratyphoid Fever, CDC",
+    "source_url": "https://www.cdc.gov/typhoid-fever/treatment/index.html"
+  },
+  {
+    "id": "fecal-occult-blood-positive",
+    "test_type": "FECAL",
+    "parameters": ["Occult Blood"],
+    "flag": "ABNORMAL",
+    "title": "Positive fecal occult blood test",
+    "content": "A positive fecal occult blood result means there is likely bleeding somewhere in the digestive tract, but this does not automatically mean cancer; it can also come from ulcers, hemorrhoids, polyps, benign tumors, diverticulosis, or ulcerative colitis. General guidance: further testing is needed to find the exact source of the bleeding, and a colonoscopy is the most common follow-up test a doctor will recommend.",
+    "source_title": "Fecal Occult Blood Test (FOBT): MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/fecal-occult-blood-test-fobt"
+  },
+  {
+    "id": "fecal-parasites-positive",
+    "test_type": "FECAL",
+    "parameters": ["Parasites / Ova"],
+    "flag": "ABNORMAL",
+    "title": "Positive stool parasite (ova and parasite) result",
+    "content": "A positive result means parasites or their eggs were found in the stool sample, confirming an intestinal parasitic infection; the specific type found will guide treatment. Treatment depends on the parasite involved and the person's general health, and usually includes medication to clear the parasite along with drinking enough fluids to avoid dehydration. General guidance: careful handwashing (especially before eating, after using the bathroom, and after contact with animals or soil), avoiding untreated water, and, if advised, avoiding swimming until symptoms have been gone for at least two weeks, all help prevent spreading the infection to others.",
+    "source_title": "Ova and Parasite Test: MedlinePlus Medical Test",
+    "source_url": "https://medlineplus.gov/lab-tests/ova-and-parasite-test"
+  }
+]
