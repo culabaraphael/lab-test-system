@@ -13,5 +13,14 @@ const pageHost =
 
 const apiHost = pageHost === "localhost" ? "127.0.0.1" : pageHost;
 
+// Opened through a LAN IP during development (start-all.ps1 -Lan): use the
+// Vite proxy on the same port (/api -> Laravel on this laptop), so a phone
+// only needs to reach port 5173. On localhost nothing changes.
+const isLocal = pageHost === "localhost" || pageHost === "127.0.0.1";
+const useDevProxy = import.meta.env.DEV && !isLocal;
+
 export const API_URL =
-  import.meta.env.VITE_API_URL || `http://${apiHost}:8000/api`;
+  import.meta.env.VITE_API_URL ||
+  (useDevProxy
+    ? `${window.location.origin}/api`
+    : `http://${apiHost}:8000/api`);

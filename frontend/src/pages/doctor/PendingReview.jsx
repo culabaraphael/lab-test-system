@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import LifestyleTips from "../../components/LifestyleTips";
 import DoctorSidebar from "../../components/doctor/DoctorSidebar";
 
 import { API_URL } from "../../config";
@@ -841,15 +842,141 @@ function ReviewModal({
 
 const ABNORMAL_FLAGS = ["LOW", "HIGH", "ABNORMAL"];
 
+const LIFE_FIELDS = ["food", "routine", "avoid", "notes"];
+const LIFE_LABELS = {
+  food: "Daily food",
+  routine: "Daily routine",
+  avoid: "What to avoid",
+  notes: "Notes",
+};
+const lifeToText = (l) =>
+  Object.fromEntries(
+    LIFE_FIELDS.map((k) => [k, ((l && l[k]) || []).join("\n")])
+  );
+const textToLife = (t) =>
+  Object.fromEntries(
+    LIFE_FIELDS.map((k) => [
+      k,
+      (t[k] || "")
+        .split("\n")
+        .map((x) => x.trim())
+        .filter(Boolean),
+    ])
+  );
+
+function LifeEditor({ value, onChange, disabled, sources, note }) {
+  return (
+    <div className="px-4 pb-4 mt-3 space-y-3">
+      <p className="text-xs text-blue-600">{note}</p>
+      {LIFE_FIELDS.map((k) => (
+        <div key={k}>
+          <label className="text-xs font-semibold text-blue-800 uppercase tracking-wide">
+            {LIFE_LABELS[k]}
+          </label>
+          <textarea
+            rows={Math.max(2, value[k].split("\n").length)}
+            value={value[k]}
+            disabled={disabled}
+            onChange={(e) => onChange({ ...value, [k]: e.target.value })}
+            className="mt-1 w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
+      ))}
+      {(sources || []).length > 0 && (
+        <p className="text-xs text-gray-600">
+          Source:{" "}
+          {sources.map((src, i) => (
+            <span key={src.url}>
+              {i > 0 && "; "}
+              <a
+                href={src.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-700 underline"
+              >
+                {src.title}
+              </a>
+            </span>
+          ))}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /**
  * Doctor review of the AI-generated health information. The text is
  * generated (or fetched if it already exists) when the modal opens, so
  * the Doctor sees exactly what the patient will see after approval.
  * The Doctor can edit the text or hide it from the patient.
  */
+// ---------------------------------------------------------------------------
+// Allergy check for AI text and lifestyle tips (Doctor review only).
+// The patient's known allergies come from the patient record. Words that
+// belong to the same food group are matched too (e.g. "peanuts" also flags
+// "nuts"). This is a simple word match and can miss a food, so the Doctor
+// still decides: the system only warns, it never removes a tip by itself.
+// ---------------------------------------------------------------------------
+const ALLERGEN_GROUPS = [
+  ["nut", "nuts", "peanut", "peanuts", "almond", "almonds", "walnut", "walnuts", "cashew", "cashews"],
+  ["shellfish", "shrimp", "shrimps", "crab", "crabs", "lobster", "mussel", "mussels", "scallop", "scallops", "clam", "clams", "oyster", "oysters", "seafood"],
+  ["fish", "salmon", "tuna", "sardine", "sardines", "anchovy", "anchovies", "trout", "seafood"],
+  ["egg", "eggs"],
+  ["milk", "dairy", "cheese", "yogurt", "lactose"],
+  ["soy", "soya", "tofu"],
+  ["wheat", "gluten", "bread", "cereal", "cereals", "grain", "grains", "oat", "oats"],
+  ["bean", "beans", "legume", "legumes", "pea", "peas", "lentil", "lentils"],
+];
+
+const ALLERGY_STOPWORDS = [
+  "allergy", "allergies", "allergic", "none", "with", "mild", "severe",
+  "food", "foods", "the", "all", "any", "known",
+];
+
+function allergyKeywords(allergies) {
+  const terms = String(allergies || "")
+    .toLowerCase()
+    .split(/[,;/\n]|\band\b/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const words = new Set();
+
+  terms.forEach((term) => {
+    term.split(/\s+/).forEach((w) => {
+      const word = w.replace(/[^a-z]/g, "");
+      if (word.length < 3 || ALLERGY_STOPWORDS.includes(word)) return;
+      words.add(word);
+      ALLERGEN_GROUPS.forEach((group) => {
+        if (group.includes(word)) group.forEach((g) => words.add(g));
+      });
+    });
+  });
+
+  return [...words];
+}
+
+function findAllergyMatches(lines, keywords) {
+  if (keywords.length === 0) return [];
+
+  return lines
+    .map((line) => {
+      const found = keywords.filter((k) =>
+        new RegExp(`\\b${k}\\b`, "i").test(line)
+      );
+      return found.length ? { line, found } : null;
+    })
+    .filter(Boolean);
+}
+
 function AiRecommendationReview({ result, onDirtyChange }) {
   const [rec, setRec] = useState(null);
   const [text, setText] = useState("");
+  const [ceb, setCeb] = useState("");
+  const [lifeText, setLifeText] = useState(lifeToText(null));
+  const [lifeCebText, setLifeCebText] = useState(lifeToText(null));
+  const [view, setView] = useState("en");
+  const [translating, setTranslating] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -884,6 +1011,10 @@ function AiRecommendationReview({ result, onDirtyChange }) {
 
       setRec(data.ai_recommendation || null);
       setText(data.ai_recommendation?.recommendation_text || "");
+      setCeb(data.ai_recommendation?.recommendation_text_ceb || "");
+      setLifeText(lifeToText(data.ai_recommendation?.lifestyle));
+      setLifeCebText(lifeToText(data.ai_recommendation?.lifestyle_ceb));
+      setView("en");
     } catch (err) {
       setError(err.message || "Unable to load the AI recommendation.");
     } finally {
@@ -898,7 +1029,20 @@ function AiRecommendationReview({ result, onDirtyChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result.id]);
 
-  const dirty = !!rec && text.trim() !== (rec.recommendation_text || "").trim();
+  const dirtyEn = !!rec && text.trim() !== (rec.recommendation_text || "").trim();
+  const dirtyLife =
+    !!rec &&
+    !!rec.lifestyle &&
+    JSON.stringify(textToLife(lifeText)) !==
+      JSON.stringify(textToLife(lifeToText(rec.lifestyle)));
+  const dirtyCeb =
+    !!rec && ceb.trim() !== (rec.recommendation_text_ceb || "").trim();
+  const dirtyLifeCeb =
+    !!rec &&
+    !!rec.lifestyle_ceb &&
+    JSON.stringify(textToLife(lifeCebText)) !==
+      JSON.stringify(textToLife(lifeToText(rec.lifestyle_ceb)));
+  const dirty = dirtyEn || dirtyLife || dirtyCeb || dirtyLifeCeb;
 
   useEffect(() => {
     onDirtyChange(dirty);
@@ -928,10 +1072,52 @@ function AiRecommendationReview({ result, onDirtyChange }) {
 
       setRec(data.ai_recommendation);
       setText(data.ai_recommendation.recommendation_text);
+      setLifeText(lifeToText(data.ai_recommendation.lifestyle));
+      setLifeCebText(lifeToText(data.ai_recommendation.lifestyle_ceb));
+      // Editing the English text clears the server-side translation.
+      setCeb(data.ai_recommendation.recommendation_text_ceb || "");
+      if (!data.ai_recommendation.recommendation_text_ceb) {
+        setView("en");
+      }
     } catch (err) {
       setError(err.message || "Unable to save the change.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const showBisaya = async () => {
+    if (ceb && (!rec.lifestyle || rec.lifestyle_ceb)) {
+      setView("ceb");
+      return;
+    }
+
+    try {
+      setTranslating(true);
+      setError("");
+
+      const response = await fetch(
+        `${API_URL}/lab-results/${result.id}/recommendation/translate`,
+        { method: "POST", headers: authHeaders }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to translate right now.");
+      }
+
+      setRec(data.ai_recommendation);
+      setCeb(data.ai_recommendation.recommendation_text_ceb || "");
+      // Load the new Bisaya tips into the editor too. Without this the editor
+      // kept the empty values from before the translation, so the tips looked
+      // missing in the Bisaya view and Save would have sent them as empty.
+      setLifeCebText(lifeToText(data.ai_recommendation.lifestyle_ceb));
+      setView("ceb");
+    } catch (err) {
+      setError(err.message || "Unable to translate right now.");
+    } finally {
+      setTranslating(false);
     }
   };
 
@@ -941,16 +1127,68 @@ function AiRecommendationReview({ result, onDirtyChange }) {
 
   return (
     <div className="border border-blue-200 bg-blue-50 rounded-xl p-5">
-      <h3 className="text-sm font-semibold text-blue-900">
-        AI Health Information
-      </h3>
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="text-sm font-semibold text-blue-900">
+          AI Health Information
+        </h3>
+
+        {!loading && rec && (
+          <div
+            className="ml-auto inline-flex rounded-lg border border-blue-300 overflow-hidden"
+            role="group"
+            aria-label="Language"
+          >
+            <button
+              type="button"
+              onClick={showBisaya}
+              disabled={translating || saving || dirty}
+              aria-pressed={view === "ceb"}
+              title={dirty ? "Save or discard your edit first" : undefined}
+              className={`px-3 py-1 text-xs font-semibold disabled:opacity-50 ${
+                view === "ceb"
+                  ? "bg-blue-700 text-white"
+                  : "bg-white text-blue-800 hover:bg-blue-100"
+              }`}
+            >
+              {translating ? "Translating..." : "Bisaya"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("en")}
+              aria-pressed={view === "en"}
+              className={`px-3 py-1 text-xs font-semibold ${
+                view === "en"
+                  ? "bg-blue-700 text-white"
+                  : "bg-white text-blue-800 hover:bg-blue-100"
+              }`}
+            >
+              English
+            </button>
+          </div>
+        )}
+      </div>
       <p className="text-xs text-blue-600 mt-1 mb-3">
         This is what the patient will see after approval. Review it,
         edit it, or hide it from the patient.
       </p>
 
       {loading && (
-        <p className="text-sm text-blue-700">Generating...</p>
+        <div className="py-1" role="status" aria-live="polite">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-blue-200 border-t-blue-700 rounded-full animate-spin flex-shrink-0" />
+            <p className="text-sm text-blue-800 font-medium">
+              Generating health information...
+            </p>
+          </div>
+          <p className="text-xs text-blue-600 mt-2">
+            This can take up to about 20 seconds. Please keep this window open.
+          </p>
+          <div className="mt-3 space-y-2 animate-pulse" aria-hidden="true">
+            <div className="h-3 bg-blue-200 rounded w-full" />
+            <div className="h-3 bg-blue-200 rounded w-11/12" />
+            <div className="h-3 bg-blue-200 rounded w-9/12" />
+          </div>
+        </div>
       )}
 
       {!loading && error && (
@@ -975,20 +1213,202 @@ function AiRecommendationReview({ result, onDirtyChange }) {
         </button>
       )}
 
+      {result.patient?.allergies && (
+        <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2">
+          <p className="text-sm font-semibold text-amber-900">
+            Known allergies: {result.patient.allergies}
+          </p>
+        </div>
+      )}
+
+      {!loading && rec && (() => {
+        const keywords = allergyKeywords(result.patient?.allergies);
+        const matches = findAllergyMatches(
+          [
+            text,
+            ...(rec.lifestyle && !rec.lifestyle_hidden
+              ? Object.values(lifeText).flatMap((v) => v.split("\n"))
+              : []),
+          ].filter((l) => l && l.trim()),
+          keywords
+        );
+
+        if (matches.length === 0) return null;
+
+        const savedTips = rec.lifestyle
+          ? ["food", "routine", "avoid", "notes"].flatMap(
+              (k) => rec.lifestyle[k] || []
+            )
+          : [];
+        const hiddenLines = rec.allergy_hidden_lines || [];
+        const keptLines = rec.allergy_kept_lines || [];
+        const hiddenCount = matches.filter((m) =>
+          hiddenLines.includes(m.line)
+        ).length;
+
+        const setKept = (lines) => save({ allergy_kept_lines: lines });
+
+        return (
+          <div className="mb-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3">
+            <p className="text-sm font-semibold text-red-800">
+              {matches.length === 1
+                ? "1 line mentions a food that matches the patient's allergy."
+                : `${matches.length} lines mention a food that matches the patient's allergy.`}
+            </p>
+            {hiddenCount > 0 && (
+              <p className="text-xs text-red-800 mt-1">
+                Matching lifestyle tips are hidden from the patient
+                automatically. You can show a tip anyway if it is safe for
+                this patient.
+              </p>
+            )}
+            <ul className="mt-2 space-y-2 text-xs text-red-800">
+              {matches.map((m, i) => {
+                const isText = m.line === text;
+                const isSavedTip = savedTips.includes(m.line);
+                const isHidden = hiddenLines.includes(m.line);
+                const isKept = keptLines.includes(m.line);
+
+                return (
+                  <li key={i} className="border-t border-red-200 pt-2 first:border-t-0 first:pt-0">
+                    <span className="font-semibold">
+                      mentions "{m.found.join('", "')}":
+                    </span>{" "}
+                    {m.line.length > 160 ? m.line.slice(0, 160) + "..." : m.line}
+                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                      {isText ? (
+                        <span className="text-red-700">
+                          AI text: edit it above if needed (text is not hidden
+                          automatically).
+                        </span>
+                      ) : !isSavedTip ? (
+                        <span className="text-red-700">
+                          Edited tip: save your edit to check it again.
+                        </span>
+                      ) : isHidden ? (
+                        <>
+                          <span className="px-2 py-0.5 rounded bg-red-200 text-red-900 font-semibold">
+                            Hidden from patient
+                          </span>
+                          <button
+                            type="button"
+                            disabled={saving || dirty}
+                            onClick={() => setKept([...keptLines, m.line])}
+                            className="px-2 py-0.5 border border-red-300 rounded bg-white hover:bg-red-100 disabled:opacity-50"
+                          >
+                            Show to patient anyway
+                          </button>
+                        </>
+                      ) : isKept ? (
+                        <>
+                          <span className="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-semibold">
+                            Shown by Doctor
+                          </span>
+                          <button
+                            type="button"
+                            disabled={saving || dirty}
+                            onClick={() =>
+                              setKept(keptLines.filter((l) => l !== m.line))
+                            }
+                            className="px-2 py-0.5 border border-red-300 rounded bg-white hover:bg-red-100 disabled:opacity-50"
+                          >
+                            Hide again
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            {dirty && (
+              <p className="text-xs text-red-700 mt-2">
+                Save or discard your edits before changing what is hidden.
+              </p>
+            )}
+          </div>
+        );
+      })()}
+
       {!loading && rec && (
         <>
+          <div className="rounded-lg border border-blue-200 bg-white">
+          {view === "ceb" ? (
+            <div>
+              <textarea
+                rows={6}
+                value={ceb}
+                onChange={(e) => setCeb(e.target.value)}
+                disabled={saving || rec.is_hidden}
+                className="w-full px-4 pt-3 pb-1 rounded-t-lg text-sm bg-transparent disabled:text-gray-500 focus:outline-none resize-y"
+              />
+              <p className="text-xs text-blue-600 px-4 pb-2">
+                Bisaya version, translated from the English text by AI. You
+                can edit it. The patient sees this text when they choose
+                Bisaya. If you edit the English text later without editing
+                this, the Bisaya is cleared and translated again.
+              </p>
+            </div>
+          ) : (
           <textarea
             rows={6}
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={saving || rec.is_hidden}
-            className="w-full px-4 py-3 border border-blue-200 rounded-lg text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full px-4 pt-3 pb-1 rounded-t-lg text-sm bg-transparent disabled:text-gray-500 focus:outline-none resize-y"
           />
+          )}
+
+          {rec.lifestyle && (
+            <div className={rec.lifestyle_hidden ? "opacity-50" : ""}>
+              {view === "en" ? (
+                <LifeEditor
+                  value={lifeText}
+                  onChange={setLifeText}
+                  disabled={saving || rec.is_hidden}
+                  sources={rec.lifestyle.sources}
+                  note="Lifestyle tips (from cited sources). You can edit them: one tip per line. Editing the English clears the Bisaya version unless you also edit the Bisaya in the same save."
+                />
+              ) : (
+                rec.lifestyle_ceb ? (
+                  <LifeEditor
+                    value={lifeCebText}
+                    onChange={setLifeCebText}
+                    disabled={saving || rec.is_hidden}
+                    sources={rec.lifestyle.sources}
+                    note="Bisaya lifestyle tips (AI translation). You can edit them: one tip per line."
+                  />
+                ) : (
+                  <LifestyleTips
+                    lifestyle={rec.lifestyle}
+                    lifestyleCeb={null}
+                    lang={view}
+                    className="px-4 pb-4"
+                  />
+                )
+              )}
+              {rec.lifestyle_hidden && (
+                <p className="text-xs text-amber-700 mt-1">
+                  Lifestyle tips are hidden from the patient.
+                </p>
+              )}
+            </div>
+          )}
+          </div>
 
           <div className="flex flex-wrap items-center gap-3 mt-3">
             <button
               type="button"
-              onClick={() => save({ recommendation_text: text })}
+              onClick={() =>
+                save({
+                  recommendation_text: text,
+                  ...(dirtyLife ? { lifestyle: textToLife(lifeText) } : {}),
+                  ...(dirtyCeb ? { recommendation_text_ceb: ceb } : {}),
+                  ...(dirtyLifeCeb
+                    ? { lifestyle_ceb: textToLife(lifeCebText) }
+                    : {}),
+                })
+              }
               disabled={!dirty || saving}
               className="px-3 py-1.5 text-xs font-semibold bg-blue-700 text-white rounded-lg disabled:opacity-40"
             >
@@ -998,7 +1418,12 @@ function AiRecommendationReview({ result, onDirtyChange }) {
             {dirty && (
               <button
                 type="button"
-                onClick={() => setText(rec.recommendation_text)}
+                onClick={() => {
+                  setText(rec.recommendation_text);
+                  setLifeText(lifeToText(rec.lifestyle));
+                  setCeb(rec.recommendation_text_ceb || "");
+                  setLifeCebText(lifeToText(rec.lifestyle_ceb));
+                }}
                 disabled={saving}
                 className="px-3 py-1.5 text-xs font-semibold border border-gray-300 text-gray-700 rounded-lg"
               >
@@ -1006,7 +1431,23 @@ function AiRecommendationReview({ result, onDirtyChange }) {
               </button>
             )}
 
-            <label className="flex items-center gap-2 text-xs text-gray-700 ml-auto">
+            {rec.lifestyle && (
+              <label className="flex items-center gap-2 text-xs text-gray-700 ml-auto">
+                <input
+                  type="checkbox"
+                  checked={!!rec.lifestyle_hidden}
+                  disabled={saving || dirty || !!rec.is_hidden}
+                  onChange={(e) => save({ lifestyle_hidden: e.target.checked })}
+                />
+                Hide lifestyle tips
+              </label>
+            )}
+
+            <label
+              className={`flex items-center gap-2 text-xs text-gray-700 ${
+                rec.lifestyle ? "" : "ml-auto"
+              }`}
+            >
               <input
                 type="checkbox"
                 checked={!!rec.is_hidden}

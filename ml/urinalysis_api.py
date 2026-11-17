@@ -126,12 +126,27 @@ def predict_urinalysis(payload: UrinalysisInput):
             ),
         )
 
+    # WBC/RBC must look like '0-2', '>50' or 'LOADED'. Anything else used to
+    # crash with a 500; answer 422 with a clear message instead (Laravel treats
+    # any non-2xx as "no ML prediction" and carries on).
+    try:
+        wbc_numeric = parse_cell_range(payload.WBC)
+        rbc_numeric = parse_cell_range(payload.RBC)
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "WBC and RBC must be a count or range such as '0-2', '5-7', "
+                f"'>50' or 'LOADED' (got WBC={payload.WBC!r}, RBC={payload.RBC!r})."
+            ),
+        )
+
     row = {
         "Age": payload.Age,
         "pH": payload.pH,
         "Specific Gravity": payload.specific_gravity,
-        "WBC_numeric": parse_cell_range(payload.WBC),
-        "RBC_numeric": parse_cell_range(payload.RBC),
+        "WBC_numeric": wbc_numeric,
+        "RBC_numeric": rbc_numeric,
         "Glucose_ord": GLUCOSE_ORDER.get(payload.Glucose.strip().upper(), 0),
         "Protein_ord": PROTEIN_ORDER.get(payload.Protein.strip().upper(), 0),
         "EpithelialCells_ord": QUANTITY_ORDER.get(payload.epithelial_cells.strip().upper(), 0),

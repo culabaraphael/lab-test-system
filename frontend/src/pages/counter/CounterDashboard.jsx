@@ -2,8 +2,23 @@ import React, { useEffect, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
 import { API_URL } from "../../config";
+import CounterRegister from "./CounterRegister";
 
 export default function CounterDashboard() {
+  // Phone-size layout (narrow screens get the mobile style overrides).
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 760
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 760);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const st = isMobile ? mobileMerged : styles;
+
+  // Which page the Counter/Nurse is on: result release or patient registration.
+  const [view, setView] = useState("release");
+
   const [approvedResults, setApprovedResults] = useState([]);
   const [selectedResult, setSelectedResult] = useState(null);
 
@@ -308,7 +323,14 @@ export default function CounterDashboard() {
       return "";
     }
 
-    return `${window.location.origin}/patient/dashboard?token=${result.access_token}`;
+    // VITE_PUBLIC_APP_URL (frontend/.env.local) lets the QR point to a public
+    // address, such as a Cloudflare tunnel, even when the Counter page itself
+    // is opened on localhost.
+    const base = (
+      import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin
+    ).replace(/\/+$/, "");
+
+    return `${base}/patient/dashboard?token=${result.access_token}`;
   };
 
   const regenerateQr = async (result) => {
@@ -383,44 +405,59 @@ export default function CounterDashboard() {
   // =========================================================
 
   return (
-    <div style={styles.page}>
+    <div style={st.page}>
 
       {/* =====================================================
           SIDEBAR
       ===================================================== */}
 
-      <aside style={styles.sidebar}>
+      <aside style={st.sidebar}>
 
         <div>
 
-          <div style={styles.logo}>
+          <div style={st.logo}>
             LIS
           </div>
 
-          <h2 style={styles.systemTitle}>
+          <h2 style={st.systemTitle}>
             Laboratory
             <br />
             Information System
           </h2>
 
-          <div style={styles.roleBadge}>
+          <div style={st.roleBadge}>
             COUNTER / NURSE
           </div>
 
-          <div style={styles.menuLabel}>
+          <div style={st.menuLabel}>
             MAIN
           </div>
 
-          <div style={styles.activeMenu}>
-            <span style={styles.menuIcon}>▣</span>
+          <button
+            type="button"
+            style={view === "release" ? st.activeMenu : st.menuItem}
+            onClick={() => setView("release")}
+          >
+            <span style={st.menuIcon}>▣</span>
             Dashboard
-          </div>
+          </button>
+
+          <button
+            type="button"
+            style={view === "register" ? st.activeMenu : st.menuItem}
+            onClick={() => setView("register")}
+          >
+            <span style={st.menuIcon}>＋</span>
+            Register Patient
+          </button>
 
         </div>
 
         <button
-          style={styles.logout}
+          style={st.logout}
           onClick={() => {
+            localStorage.removeItem("auth_token");
+            localStorage.removeItem("user");
             window.location.href = "/login";
           }}
         >
@@ -433,29 +470,34 @@ export default function CounterDashboard() {
           MAIN CONTENT
       ===================================================== */}
 
-      <main style={styles.main}>
+      <main style={st.main}>
+
+        {view === "register" ? (
+          <CounterRegister isMobile={isMobile} />
+        ) : (
+        <>
 
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <div style={styles.header}>
+        <div style={st.header}>
 
           <div>
 
-            <h1 style={styles.title}>
+            <h1 style={st.title}>
               Patient Result Release
             </h1>
 
-            <p style={styles.subtitle}>
+            <p style={st.subtitle}>
               Doctor-approved laboratory results
               ready for patient release.
             </p>
 
           </div>
 
-          <div style={styles.liveBadge}>
-            <span style={styles.liveDot}></span>
+          <div style={st.liveBadge}>
+            <span style={st.liveDot}></span>
             LIVE
           </div>
 
@@ -465,15 +507,15 @@ export default function CounterDashboard() {
             LIVE MONITORING BAR
         ================================================= */}
 
-        <div style={styles.liveBar}>
+        <div style={st.liveBar}>
 
           <div>
 
-            <strong style={styles.liveText}>
+            <strong style={st.liveText}>
               ● Live monitoring
             </strong>
 
-            <span style={styles.liveDescription}>
+            <span style={st.liveDescription}>
               {" "}
               New doctor-approved results appear
               automatically.
@@ -481,7 +523,7 @@ export default function CounterDashboard() {
 
           </div>
 
-          <div style={styles.refreshText}>
+          <div style={st.refreshText}>
             Checking every 5 seconds
           </div>
 
@@ -492,7 +534,7 @@ export default function CounterDashboard() {
         ================================================= */}
 
         {error && (
-          <div style={styles.error}>
+          <div style={st.error}>
             <strong>Connection error:</strong>{" "}
             {error}
           </div>
@@ -502,51 +544,51 @@ export default function CounterDashboard() {
             SUMMARY
         ================================================= */}
 
-        <div style={styles.summaryGrid}>
+        <div style={st.summaryGrid}>
 
-          <div style={styles.summaryCard}>
+          <div style={st.summaryCard}>
 
-            <div style={styles.number}>
+            <div style={st.number}>
               {loading ? "—" : approvedResults.length}
             </div>
 
-            <div style={styles.cardTitle}>
+            <div style={st.cardTitle}>
               Approved Results
             </div>
 
-            <div style={styles.cardDescription}>
+            <div style={st.cardDescription}>
               All approved results available
             </div>
 
           </div>
 
-          <div style={styles.summaryCard}>
+          <div style={st.summaryCard}>
 
-            <div style={styles.number}>
+            <div style={st.number}>
               {loading ? "—" : filteredResults.length}
             </div>
 
-            <div style={styles.cardTitle}>
+            <div style={st.cardTitle}>
               Showing
             </div>
 
-            <div style={styles.cardDescription}>
+            <div style={st.cardDescription}>
               Results matching search
             </div>
 
           </div>
 
-          <div style={styles.summaryCard}>
+          <div style={st.summaryCard}>
 
-            <div style={styles.ready}>
+            <div style={st.ready}>
               ● READY
             </div>
 
-            <div style={styles.cardTitle}>
+            <div style={st.cardTitle}>
               Counter Status
             </div>
 
-            <div style={styles.cardDescription}>
+            <div style={st.cardDescription}>
               Monitoring Doctor approvals
             </div>
 
@@ -558,17 +600,17 @@ export default function CounterDashboard() {
             PATIENT QUEUE
         ================================================= */}
 
-        <section style={styles.section}>
+        <section style={st.section}>
 
-          <div style={styles.sectionHeader}>
+          <div style={st.sectionHeader}>
 
             <div>
 
-              <h2 style={styles.sectionTitle}>
+              <h2 style={st.sectionTitle}>
                 Patients Ready for Release
               </h2>
 
-              <p style={styles.sectionSubtitle}>
+              <p style={st.sectionSubtitle}>
                 Call the patient's name from the
                 waiting area.
               </p>
@@ -582,7 +624,7 @@ export default function CounterDashboard() {
               onChange={(e) =>
                 setSearch(e.target.value)
               }
-              style={styles.search}
+              style={st.search}
             />
 
           </div>
@@ -592,17 +634,17 @@ export default function CounterDashboard() {
           ================================================= */}
 
           {loading && (
-            <div style={styles.emptyState}>
+            <div style={st.emptyState}>
 
-              <div style={styles.emptyIcon}>
+              <div style={st.emptyIcon}>
                 ...
               </div>
 
-              <h3 style={styles.emptyTitle}>
+              <h3 style={st.emptyTitle}>
                 Loading approved results
               </h3>
 
-              <p style={styles.emptyDescription}>
+              <p style={st.emptyDescription}>
                 Connecting to the laboratory system.
               </p>
 
@@ -616,19 +658,19 @@ export default function CounterDashboard() {
           {!loading &&
             filteredResults.length === 0 && (
 
-              <div style={styles.emptyState}>
+              <div style={st.emptyState}>
 
-                <div style={styles.emptyIcon}>
+                <div style={st.emptyIcon}>
                   ✓
                 </div>
 
-                <h3 style={styles.emptyTitle}>
+                <h3 style={st.emptyTitle}>
                   {search
                     ? "No patient found"
                     : "No approved results"}
                 </h3>
 
-                <p style={styles.emptyDescription}>
+                <p style={st.emptyDescription}>
                   {search
                     ? "Try another patient name or patient ID."
                     : "When a Doctor approves a laboratory result, the patient will appear here automatically."}
@@ -645,7 +687,7 @@ export default function CounterDashboard() {
           {!loading &&
             filteredResults.length > 0 && (
 
-              <div style={styles.resultList}>
+              <div style={st.resultList}>
 
                 {filteredResults.map((result) => {
 
@@ -657,22 +699,22 @@ export default function CounterDashboard() {
                     <div
                       key={result.id}
                       style={{
-                        ...styles.patientCard,
+                        ...st.patientCard,
                         ...(isNew
-                          ? styles.newPatientCard
+                          ? st.newPatientCard
                           : {}),
                       }}
                     >
 
                       {/* NEW BADGE */}
 
-                      <div style={styles.badgeColumn}>
+                      <div style={st.badgeColumn}>
 
                         {isNew && (
-                          <div style={styles.newBadge}>
+                          <div style={st.newBadge}>
 
                             <span
-                              style={styles.newDot}
+                              style={st.newDot}
                             ></span>
 
                             NEW
@@ -684,21 +726,21 @@ export default function CounterDashboard() {
 
                       {/* PATIENT INFORMATION */}
 
-                      <div style={styles.patientInfo}>
+                      <div style={st.patientInfo}>
 
-                        <div style={styles.patientName}>
+                        <div style={st.patientName}>
                           {getPatientName(result)}
                         </div>
 
-                        <div style={styles.patientId}>
+                        <div style={st.patientId}>
                           Patient ID: {getPatientId(result)}
                         </div>
 
-                        <div style={styles.testName}>
+                        <div style={st.testName}>
                           {getTestName(result)}
                         </div>
 
-                        <div style={styles.approvedTime}>
+                        <div style={st.approvedTime}>
                           Doctor approved:{" "}
                           {formatDate(
                             result.approved_at ||
@@ -711,14 +753,14 @@ export default function CounterDashboard() {
 
                       {/* STATUS */}
 
-                      <div style={styles.approvedStatus}>
+                      <div style={st.approvedStatus}>
                         ✓ APPROVED
                       </div>
 
                       {/* VIEW */}
 
                       <button
-                        style={styles.viewButton}
+                        style={st.viewButton}
                         onClick={() =>
                           openResult(result)
                         }
@@ -737,6 +779,9 @@ export default function CounterDashboard() {
 
         </section>
 
+        </>
+        )}
+
       </main>
 
       {/* =====================================================
@@ -746,14 +791,14 @@ export default function CounterDashboard() {
       {selectedResult && (
 
         <div
-          style={styles.overlay}
+          style={st.overlay}
           onClick={() =>
             setSelectedResult(null)
           }
         >
 
           <div
-            style={styles.modal}
+            style={st.modal}
             onClick={(e) =>
               e.stopPropagation()
             }
@@ -761,22 +806,22 @@ export default function CounterDashboard() {
 
             {/* MODAL HEADER */}
 
-            <div style={styles.modalHeader}>
+            <div style={st.modalHeader}>
 
               <div>
 
-                <div style={styles.modalLabel}>
+                <div style={st.modalLabel}>
                   APPROVED LABORATORY RESULT
                 </div>
 
-                <h2 style={styles.modalTitle}>
+                <h2 style={st.modalTitle}>
                   {getPatientName(selectedResult)}
                 </h2>
 
               </div>
 
               <button
-                style={styles.modalClose}
+                style={st.modalClose}
                 onClick={() =>
                   setSelectedResult(null)
                 }
@@ -788,51 +833,51 @@ export default function CounterDashboard() {
 
             {/* PATIENT / TEST DETAILS */}
 
-            <div style={styles.detailGrid}>
+            <div style={st.detailGrid}>
 
-              <div style={styles.detailBox}>
+              <div style={st.detailBox}>
 
-                <div style={styles.detailLabel}>
+                <div style={st.detailLabel}>
                   PATIENT ID
                 </div>
 
-                <div style={styles.detailValue}>
+                <div style={st.detailValue}>
                   {getPatientId(selectedResult)}
                 </div>
 
               </div>
 
-              <div style={styles.detailBox}>
+              <div style={st.detailBox}>
 
-                <div style={styles.detailLabel}>
+                <div style={st.detailLabel}>
                   LABORATORY TEST
                 </div>
 
-                <div style={styles.detailValue}>
+                <div style={st.detailValue}>
                   {getTestName(selectedResult)}
                 </div>
 
               </div>
 
-              <div style={styles.detailBox}>
+              <div style={st.detailBox}>
 
-                <div style={styles.detailLabel}>
+                <div style={st.detailLabel}>
                   STATUS
                 </div>
 
-                <div style={styles.modalApproved}>
+                <div style={st.modalApproved}>
                   ✓ APPROVED BY DOCTOR
                 </div>
 
               </div>
 
-              <div style={styles.detailBox}>
+              <div style={st.detailBox}>
 
-                <div style={styles.detailLabel}>
+                <div style={st.detailLabel}>
                   APPROVED
                 </div>
 
-                <div style={styles.detailValue}>
+                <div style={st.detailValue}>
                   {formatDate(
                     selectedResult.approved_at ||
                       selectedResult.updated_at ||
@@ -848,9 +893,9 @@ export default function CounterDashboard() {
                 PARAMETERS
             ================================================= */}
 
-            <div style={styles.parameterSection}>
+            <div style={st.parameterSection}>
 
-              <div style={styles.noParameters}>
+              <div style={st.noParameters}>
                 Result values and health information are visible only
                 to the Doctor and the patient. Generate a QR code below
                 to release this result to the patient.
@@ -862,9 +907,9 @@ export default function CounterDashboard() {
                 QR RESULT RELEASE
             ================================================= */}
 
-            <div style={styles.qrSection}>
+            <div style={st.qrSection}>
 
-              <div style={styles.qrBox}>
+              <div style={st.qrBox}>
                 {selectedResult.access_token &&
                 !isTokenExpired(selectedResult) ? (
                   <QRCodeSVG
@@ -872,8 +917,8 @@ export default function CounterDashboard() {
                     size={140}
                   />
                 ) : (
-                  <div style={styles.qrText}>
-                    <div style={styles.qrEmpty}>
+                  <div style={st.qrText}>
+                    <div style={st.qrEmpty}>
                       EXPIRED
                     </div>
                   </div>
@@ -882,11 +927,11 @@ export default function CounterDashboard() {
 
               <div>
 
-                <h3 style={styles.qrTitle}>
+                <h3 style={st.qrTitle}>
                   QR Result Release
                 </h3>
 
-                <p style={styles.qrDescription}>
+                <p style={st.qrDescription}>
                   {selectedResult.access_token &&
                   !isTokenExpired(selectedResult)
                     ? "Show this QR code to the patient. It expires 15 minutes after generation."
@@ -897,7 +942,7 @@ export default function CounterDashboard() {
                   type="button"
                   onClick={() => regenerateQr(selectedResult)}
                   disabled={qrRegenerating}
-                  style={styles.qrRegenerateButton}
+                  style={st.qrRegenerateButton}
                 >
                   {qrRegenerating
                     ? "Generating..."
@@ -927,7 +972,7 @@ export default function CounterDashboard() {
                   )}
 
                 {qrError && (
-                  <p style={styles.qrErrorText}>{qrError}</p>
+                  <p style={st.qrErrorText}>{qrError}</p>
                 )}
 
               </div>
@@ -937,7 +982,7 @@ export default function CounterDashboard() {
             {/* CLOSE */}
 
             <button
-              style={styles.closeButton}
+              style={st.closeButton}
               onClick={() =>
                 setSelectedResult(null)
               }
@@ -969,9 +1014,15 @@ const styles = {
     fontFamily: "Inter, Arial, sans-serif",
   },
 
+  // Sticky, full-height sidebar: Log out stays visible at the bottom
+  // without scrolling; only the main content scrolls.
   sidebar: {
     width: "240px",
-    minHeight: "100vh",
+    height: "100vh",
+    position: "sticky",
+    top: 0,
+    alignSelf: "flex-start",
+    overflowY: "auto",
     background: "#ffffff",
     borderRight: "1px solid #e5e7eb",
     padding: "28px 18px",
@@ -1022,12 +1073,36 @@ const styles = {
   },
 
   activeMenu: {
+    width: "100%",
+    border: "none",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    textAlign: "left",
+    marginBottom: "4px",
     padding: "12px",
     borderRadius: "8px",
     background: "#eef4fb",
     color: "#123c69",
     fontSize: "14px",
     fontWeight: "700",
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+  },
+
+  menuItem: {
+    width: "100%",
+    border: "none",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    textAlign: "left",
+    marginBottom: "4px",
+    padding: "12px",
+    borderRadius: "8px",
+    background: "transparent",
+    color: "#344054",
+    fontSize: "14px",
+    fontWeight: "600",
     display: "flex",
     gap: "10px",
     alignItems: "center",
@@ -1040,7 +1115,8 @@ const styles = {
   logout: {
     border: "none",
     background: "transparent",
-    color: "#667085",
+    color: "#b42318",
+    fontWeight: "600",
     textAlign: "left",
     padding: "12px",
     cursor: "pointer",
@@ -1599,3 +1675,53 @@ const styles = {
     fontWeight: "800",
   },
 };
+
+/* ============================================================
+   PHONE-SIZE OVERRIDES (screens narrower than 760px)
+============================================================ */
+
+const mobileStyles = {
+  page: { flexDirection: "column" },
+  sidebar: {
+    width: "100%",
+    height: "auto",
+    position: "static",
+    alignSelf: "stretch",
+    overflowY: "visible",
+    flexWrap: "wrap",
+    gap: "8px",
+    padding: "12px 16px",
+    flexDirection: "row",
+    alignItems: "center",
+    borderRight: "none",
+    borderBottom: "1px solid #e5e7eb",
+  },
+  logo: { width: "36px", height: "36px", fontSize: "12px" },
+  roleBadge: { marginTop: "6px" },
+  systemTitle: { display: "none" },
+  menuLabel: { display: "none" },
+  activeMenu: { display: "inline-flex", width: "auto", padding: "8px 10px", fontSize: "12px", marginTop: "8px", marginRight: "6px" },
+  menuItem: { display: "inline-flex", width: "auto", padding: "8px 10px", fontSize: "12px", marginTop: "8px", marginRight: "6px" },
+  main: { padding: "16px" },
+  header: { gap: "10px" },
+  title: { fontSize: "20px" },
+  liveBar: { flexDirection: "column", alignItems: "flex-start", gap: "4px" },
+  summaryGrid: { gridTemplateColumns: "1fr", gap: "10px" },
+  sectionHeader: { flexDirection: "column", alignItems: "stretch", gap: "10px", padding: "14px" },
+  search: { width: "100%", fontSize: "14px" },
+  resultList: { padding: "10px" },
+  patientCard: { gridTemplateColumns: "minmax(0, 1fr) auto", gap: "8px 10px", padding: "12px" },
+  badgeColumn: { gridColumn: "1 / -1", minWidth: 0 },
+  patientInfo: { gridColumn: "1 / -1" },
+  approvedStatus: { justifySelf: "start" },
+  viewButton: { justifySelf: "end", padding: "10px 16px", fontSize: "12px" },
+  overlay: { padding: "10px", alignItems: "flex-start" },
+  modal: { padding: "16px", maxHeight: "95vh" },
+  modalHeader: { gap: "10px" },
+  detailGrid: { gridTemplateColumns: "1fr" },
+  qrSection: { flexDirection: "column", alignItems: "flex-start" },
+};
+
+const mobileMerged = Object.fromEntries(
+  Object.keys(styles).map((k) => [k, { ...styles[k], ...(mobileStyles[k] || {}) }])
+);

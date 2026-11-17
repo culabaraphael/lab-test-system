@@ -10,10 +10,21 @@ class PatientController extends Controller
 {
     /**
      * Get all patients.
+     *
+     * The MedTech sees only patients the Counter/Nurse has sent, newest
+     * sent first, so a newly sent patient appears at the top of the list.
+     * Other staff roles see every patient, newest registered first.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $patients = Patient::orderBy('created_at', 'desc')->get();
+        if ($request->user() && $request->user()->role === 'Medical Technologist') {
+            $patients = Patient::whereNotNull('sent_to_medtech_at')
+                ->orderBy('sent_to_medtech_at', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $patients = Patient::orderBy('created_at', 'desc')->get();
+        }
 
         return response()->json([
             'success' => true,
@@ -34,6 +45,7 @@ class PatientController extends Controller
             'sex' => ['nullable', 'in:Male,Female'],
             'contact_number' => ['nullable', 'string', 'max:30'],
             'address' => ['nullable', 'string', 'max:500'],
+            'allergies' => ['nullable', 'string', 'max:500'],
         ]);
 
         $patient = Patient::create([
@@ -51,13 +63,43 @@ class PatientController extends Controller
             'address' => !empty($validated['address'])
                 ? trim($validated['address'])
                 : null,
+            'allergies' => !empty($validated['allergies'])
+                ? trim($validated['allergies'])
+                : null,
+            'registered_by' => $request->user()?->id,
+            // Not sent yet: the Counter/Nurse sends the patient to the
+            // MedTech with sendToMedtech() right after registering.
+            'sent_to_medtech_at' => null,
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Patient registered successfully.',
-            'patient' => $patient,
+            'patient' => $patient->fresh(),
         ], 201);
+    }
+
+    /**
+     * Counter/Nurse sends a registered patient to the MedTech.
+     * The patient then appears in the MedTech's Patients list with "NEW".
+     */
+    public function sendToMedtech(Patient $patient): JsonResponse
+    {
+        if ($patient->sent_to_medtech_at !== null) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Patient ' . $patient->patient_id . ' was already sent to the MedTech.',
+                'patient' => $patient,
+            ]);
+        }
+
+        $patient->update(['sent_to_medtech_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Patient ' . $patient->patient_id . ' sent to the MedTech.',
+            'patient' => $patient->fresh(),
+        ]);
     }
 
     /**
@@ -75,6 +117,7 @@ class PatientController extends Controller
             'sex' => ['nullable', 'in:Male,Female'],
             'contact_number' => ['nullable', 'string', 'max:30'],
             'address' => ['nullable', 'string', 'max:500'],
+            'allergies' => ['nullable', 'string', 'max:500'],
         ]);
 
         $patient->update([
@@ -90,6 +133,9 @@ class PatientController extends Controller
                 : null,
             'address' => !empty($validated['address'])
                 ? trim($validated['address'])
+                : null,
+            'allergies' => !empty($validated['allergies'])
+                ? trim($validated['allergies'])
                 : null,
         ]);
 

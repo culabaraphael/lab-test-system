@@ -31,7 +31,7 @@ export default function DoctorSidebar() {
             Lab System
           </p>
           <p className="text-gray-500 text-[10px]">
-            Esperanza Municipal Hospital
+            Esperanza MediCare Community Hospital
           </p>
         </div>
 
@@ -70,7 +70,7 @@ export default function DoctorSidebar() {
             Lab System
           </p>
           <p className="text-[10px] text-gray-500 mt-1">
-            Esperanza Municipal Hospital
+            Esperanza MediCare Community Hospital
           </p>
         </div>
 

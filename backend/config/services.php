@@ -26,9 +26,16 @@ return [
         'url' => env('EMBEDDING_ML_URL', 'http://127.0.0.1:8003'),
     ],
 
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+        'model' => env('GROQ_MODEL', 'openai/gpt-oss-120b'),
+    ],
+
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
         'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+        // Optional second model, used only when the main model is overloaded or times out.
+        'fallback_model' => env('GEMINI_FALLBACK_MODEL'),
     ],
 
     'postmark' => [

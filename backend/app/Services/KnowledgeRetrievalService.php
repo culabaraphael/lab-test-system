@@ -101,18 +101,33 @@ class KnowledgeRetrievalService
         $codes = array_unique(array_map(fn ($f) => $f['test_type_code'] ?? '', $abnormalFindings));
         $typeCode = (count($codes) === 1 && reset($codes) !== '') ? reset($codes) : null;
 
+        // Parameter guard: with a single finding, the entry must be about that very
+        // parameter (its `parameters` list). Without this the nearest entries of the
+        // same test type were returned even when none covered the finding (e.g.
+        // Hemoglobin HIGH pulled the WBC and platelet entries, UA Appearance pulled
+        // the blood/protein/UTI entries). No match now means no recommendation,
+        // which is the honest result when the knowledge base has nothing on it.
+        $paramName = null;
+        if (count($abnormalFindings) === 1) {
+            $name = trim((string) ($abnormalFindings[0]['parameter_name'] ?? ''));
+            $paramName = $name !== '' ? $name : null;
+        }
+
         try {
             $rows = DB::select(
-                'SELECT entry_key, title, content, source_title, source_url, flag,
+                'SELECT entry_key, title, content, source_title, source_url, flag, parameters,
                         embedding <=> ?::vector AS distance
                  FROM knowledge_base_entries
                  WHERE (?::text IS NULL OR flag <> ?::text)
                    AND (?::text IS NULL
                         OR test_type_code = ?::text
                         OR NOT EXISTS (SELECT 1 FROM knowledge_base_entries k2 WHERE k2.test_type_code = ?::text))
+                   AND (?::text IS NULL
+                        OR EXISTS (SELECT 1 FROM json_array_elements_text(parameters) AS p(v)
+                                   WHERE lower(trim(p.v)) = lower(?::text)))
                  ORDER BY distance ASC
                  LIMIT ?',
-                [$vectorLiteral, $opposite, $opposite, $typeCode, $typeCode, $typeCode, $topK]
+                [$vectorLiteral, $opposite, $opposite, $typeCode, $typeCode, $typeCode, $paramName, $paramName, $topK]
             );
         } catch (\Throwable $e) {
             Log::warning('Knowledge base retrieval failed: query error', [

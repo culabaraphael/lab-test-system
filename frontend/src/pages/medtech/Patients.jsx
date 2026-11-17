@@ -12,6 +12,7 @@ const EMPTY_FORM = {
   sex: "",
   contact_number: "",
   address: "",
+  allergies: "",
 };
 
 export default function Patients() {
@@ -40,10 +41,14 @@ export default function Patients() {
   // ==========================================
   // LOAD PATIENTS
   // ==========================================
-  const fetchPatients = async () => {
+  // silent = background refresh (no spinner, no error banner), used by the
+  // auto-refresh so patients sent by the Counter/Nurse appear on their own.
+  const fetchPatients = async (silent = false) => {
     try {
-      setLoading(true);
-      setError("");
+      if (!silent) {
+        setLoading(true);
+        setError("");
+      }
 
       const response = await fetch(API_URL + "/patients", {
         method: "GET",
@@ -67,9 +72,13 @@ export default function Patients() {
     } catch (err) {
       console.error("Fetch patients error:", err);
 
-      setError(err.message || "Unable to connect to the patient database.");
+      if (!silent) {
+        setError(err.message || "Unable to connect to the patient database.");
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -115,6 +124,11 @@ export default function Patients() {
 
   useEffect(() => {
     fetchPatients();
+
+    // Check every 10 seconds for patients sent by the Counter/Nurse.
+    // The "NEW" badge (is_new from the server) ends 15 minutes after sending.
+    const timer = setInterval(() => fetchPatients(true), 10000);
+    return () => clearInterval(timer);
   }, []);
 
   // ==========================================
@@ -184,6 +198,7 @@ export default function Patients() {
           sex: form.sex || null,
           contact_number: form.contact_number.trim() || null,
           address: form.address.trim() || null,
+          allergies: form.allergies.trim() || null,
         }),
       });
 
@@ -249,6 +264,7 @@ export default function Patients() {
       sex: patient.sex || "",
       contact_number: patient.contact_number || "",
       address: patient.address || "",
+      allergies: patient.allergies || "",
     });
 
     setError("");
@@ -307,6 +323,7 @@ export default function Patients() {
           sex: form.sex || null,
           contact_number: form.contact_number.trim() || null,
           address: form.address.trim() || null,
+          allergies: form.allergies.trim() || null,
         }),
       });
 
@@ -446,7 +463,7 @@ export default function Patients() {
             </h1>
 
             <p className="mt-1 text-sm sm:text-base text-gray-500">
-              Create, view, update, and manage registered patient information.
+              View, update, and manage patient information registered by the Counter/Nurse.
             </p>
           </div>
 
@@ -479,13 +496,7 @@ export default function Patients() {
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={openRegisterModal}
-                className="w-full sm:w-auto px-5 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition"
-              >
-                + Register Patient
-              </button>
+              {/* Registering patients moved to the Counter/Nurse. */}
             </div>
           </div>
 
@@ -539,19 +550,10 @@ export default function Patients() {
 
                 <p className="mt-2 max-w-md text-sm text-gray-500">
                   {patients.length === 0
-                    ? "Patient records will appear here once they are registered."
+                    ? "Patients appear here once the Counter/Nurse registers them and sends them to the MedTech."
                     : "No patient record matches your search."}
                 </p>
 
-                {patients.length === 0 && (
-                  <button
-                    type="button"
-                    onClick={openRegisterModal}
-                    className="mt-5 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition"
-                  >
-                    Register First Patient
-                  </button>
-                )}
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -601,6 +603,11 @@ export default function Patients() {
 
                           <td className="px-6 py-4 text-sm text-gray-900">
                             {fullName}
+                            {patient.is_new && (
+                              <span className="ml-2 inline-block align-middle px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
+                                NEW
+                              </span>
+                            )}
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-600">
@@ -889,6 +896,14 @@ export default function Patients() {
 
                 <p className="mt-1 text-sm text-gray-900">
                   {selectedPatient.address || "—"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-gray-500">Known Allergies</p>
+
+                <p className="mt-1 text-sm text-gray-900">
+                  {selectedPatient.allergies || "None recorded"}
                 </p>
               </div>
 
@@ -1232,6 +1247,27 @@ function PatientFormFields({ form, handleChange }) {
           rows="3"
           className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-gray-300"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Known Allergies
+        </label>
+
+        <input
+          type="text"
+          name="allergies"
+          value={form.allergies}
+          onChange={handleChange}
+          placeholder="e.g. peanuts, shellfish (leave blank if none)"
+          maxLength={500}
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+        />
+
+        <p className="mt-1 text-xs text-gray-500">
+          Ask the patient. The Doctor sees this when reviewing AI lifestyle
+          tips.
+        </p>
       </div>
     </>
   );

@@ -67,7 +67,7 @@ export default function Sidebar() {
         <div>
           <p className="text-white font-semibold text-sm">Lab System</p>
           <p className="text-gray-500 text-[10px]">
-            Esperanza Municipal Hospital
+            Esperanza MediCare Community Hospital
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function Sidebar() {
           <p className="text-base font-semibold tracking-tight">Lab System</p>
 
           <p className="text-[10px] text-gray-500 mt-1">
-            Esperanza Municipal Hospital
+            Esperanza MediCare Community Hospital
           </p>
         </div>
 

@@ -11,13 +11,40 @@ import {
 
 const EMPTY_PARAMETER_VALUES = {};
 
+// One-sided ranges (e.g. Total Cholesterol, SGPT, HbA1c) are shown as
+// "<=" or ">=", matching computeFlag() in the backend, which treats a
+// value equal to a bound as NORMAL.
+function formatReferenceRange(parameter) {
+  const low = parameter.low_value;
+  const high = parameter.high_value;
+  let text = null;
+
+  if (low !== null && high !== null) {
+    text = Number(low) + " - " + Number(high);
+  } else if (high !== null) {
+    text = "<= " + Number(high);
+  } else if (low !== null) {
+    text = ">= " + Number(low);
+  }
+
+  if (text === null) {
+    return "No reference range";
+  }
+
+  return parameter.unit ? text + " " + parameter.unit : text;
+}
+
 export default function EncodeResults() {
   const [patients, setPatients] = useState([]);
   const [testTypes, setTestTypes] = useState([]);
-  const [parameters, setParameters] = useState([]);
 
   const [patientId, setPatientId] = useState("");
-  const [testTypeId, setTestTypeId] = useState("");
+
+  // Several tests can be encoded at once: the checked test type IDs (in the
+  // order they were checked), their parameters, and the values typed in,
+  // keyed "testTypeId:referenceRangeId".
+  const [selectedTestIds, setSelectedTestIds] = useState([]);
+  const [parametersByTest, setParametersByTest] = useState({});
 
   const [parameterValues, setParameterValues] = useState(
     EMPTY_PARAMETER_VALUES
@@ -31,7 +58,7 @@ export default function EncodeResults() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [mlPrediction, setMlPrediction] = useState(null);
+  const [mlPredictions, setMlPredictions] = useState([]);
 
   // ==========================================
   // SEARCHABLE PATIENT DROPDOWN
@@ -277,92 +304,103 @@ export default function EncodeResults() {
   };
 
   // ==========================================
-  // LOAD PARAMETERS WHEN TEST CHANGES
+  // LOAD PARAMETERS OF EVERY CHECKED TEST
+  // (reloaded when the patient's sex changes, because some ranges differ)
   // ==========================================
+  const loadedForSex = useRef(null);
+
   useEffect(() => {
-    if (!testTypeId) {
-      setParameters([]);
-      setParameterValues(
-        EMPTY_PARAMETER_VALUES
-      );
-      return;
+    const sex = selectedPatient?.sex || "";
+
+    if (loadedForSex.current !== sex) {
+      loadedForSex.current = sex;
+      setParametersByTest({});
+      if (selectedTestIds.length === 0) return;
     }
+
+    const missing = selectedTestIds.filter(
+      (id) => parametersByTest[id] === undefined
+    );
+
+    if (missing.length === 0) return;
+
+    let cancelled = false;
 
     const loadParameters = async () => {
       try {
         setLoadingParameters(true);
-        setParameters([]);
-
-        setParameterValues(
-          EMPTY_PARAMETER_VALUES
-        );
-
         setError("");
 
-        const sexQuery = selectedPatient?.sex
-          ? "?sex=" + encodeURIComponent(selectedPatient.sex)
-          : "";
+        const sexQuery = sex ? "?sex=" + encodeURIComponent(sex) : "";
 
-        const response = await fetch(
-          API_URL +
-            "/test-types/" +
-            testTypeId +
-            "/parameters" +
-            sexQuery,
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
-          }
+        const loaded = await Promise.all(
+          missing.map(async (id) => {
+            const response = await fetch(
+              API_URL + "/test-types/" + id + "/parameters" + sexQuery,
+              { method: "GET", headers: { Accept: "application/json" } }
+            );
+
+            if (!response.ok) {
+              throw new Error("Failed to load the parameters for a selected test.");
+            }
+
+            const data = await response.json();
+
+            if (!data.success) {
+              throw new Error("Unable to retrieve test parameters.");
+            }
+
+            return [id, data.parameters || []];
+          })
         );
 
-        if (!response.ok) {
-          throw new Error(
-            "Failed to load the parameters for this test."
-          );
+        if (!cancelled) {
+          setParametersByTest((previous) => ({
+            ...previous,
+            ...Object.fromEntries(loaded),
+          }));
         }
-
-        const data = await response.json();
-
-        if (!data.success) {
-          throw new Error(
-            "Unable to retrieve test parameters."
-          );
-        }
-
-        setParameters(
-          data.parameters || []
-        );
       } catch (err) {
-        console.error(
-          "Parameter loading error:",
-          err
-        );
-
-        setError(
-          err.message ||
-            "Unable to load laboratory parameters."
-        );
+        console.error("Parameter loading error:", err);
+        if (!cancelled) {
+          setError(err.message || "Unable to load laboratory parameters.");
+        }
       } finally {
-        setLoadingParameters(false);
+        if (!cancelled) setLoadingParameters(false);
       }
     };
 
     loadParameters();
-  }, [testTypeId, selectedPatient?.sex]);
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTestIds, selectedPatient?.sex, parametersByTest]);
+
+  const toggleTest = (id) => {
+    const key = String(id);
+    setError("");
+    setSuccess("");
+    setSelectedTestIds((previous) =>
+      previous.includes(key)
+        ? previous.filter((x) => x !== key)
+        : [...previous, key]
+    );
+  };
 
   // ==========================================
   // PARAMETER VALUE CHANGE
   // ==========================================
   const handleParameterChange = (
+    testId,
     referenceRangeId,
     value
   ) => {
     setParameterValues(
       (previous) => ({
         ...previous,
-        [referenceRangeId]: value,
+        [testId + ":" + referenceRangeId]: value,
       })
     );
   };
@@ -375,8 +413,7 @@ export default function EncodeResults() {
     setPatientSearch("");
     setPatientDropdownOpen(false);
 
-    setTestTypeId("");
-    setParameters([]);
+    setSelectedTestIds([]);
 
     setParameterValues(
       EMPTY_PARAMETER_VALUES
@@ -389,203 +426,123 @@ export default function EncodeResults() {
   // ==========================================
   // SUBMIT LAB RESULT
   // ==========================================
+  const testName = (id) =>
+    testTypes.find((t) => String(t.id) === String(id))?.name || "Laboratory test";
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     setError("");
     setSuccess("");
-    setMlPrediction(null);
+    setMlPredictions([]);
 
     if (!patientId) {
-      setError(
-        "Please select a patient."
-      );
+      setError("Please select a patient.");
       return;
     }
 
-    if (!testTypeId) {
-      setError(
-        "Please select a laboratory test."
-      );
+    if (selectedTestIds.length === 0) {
+      setError("Please check at least one laboratory test.");
       return;
     }
 
-    if (parameters.length === 0) {
-      setError(
-        "This laboratory test does not have any configured parameters yet."
+    for (const id of selectedTestIds) {
+      const params = parametersByTest[id] || [];
+
+      if (params.length === 0) {
+        setError(testName(id) + " does not have any configured parameters yet.");
+        return;
+      }
+
+      const missing = params.find(
+        (p) => String(parameterValues[id + ":" + p.id] ?? "").trim() === ""
       );
-      return;
-    }
 
-    const missingParameter =
-      parameters.find((parameter) => {
-        const value =
-          parameterValues[
-            parameter.id
-          ] !== undefined
-            ? parameterValues[
-                parameter.id
-              ]
-            : "";
-
-        return (
-          String(value).trim() === ""
+      if (missing) {
+        setError(
+          "Please enter a result for " +
+            missing.parameter_name +
+            " (" +
+            testName(id) +
+            ")."
         );
-      });
-
-    if (missingParameter) {
-      setError(
-        "Please enter a result for " +
-          missingParameter.parameter_name +
-          "."
-      );
-      return;
+        return;
+      }
     }
 
     try {
       setSubmitting(true);
 
-      const formattedParameters =
-        parameters.map(
-          (parameter) => {
-            const value =
-              parameterValues[
-                parameter.id
-              ];
+      const tests = selectedTestIds.map((id) => ({
+        test_type_id: Number(id),
+        parameters: (parametersByTest[id] || []).map((parameter) => {
+          const value = parameterValues[id + ":" + parameter.id];
+          const numeric = parameter.data_type === "numeric";
 
-            if (
-              parameter.data_type ===
-              "numeric"
-            ) {
-              return {
-                reference_range_id:
-                  parameter.id,
+          return {
+            reference_range_id: parameter.id,
+            parameter_name: parameter.parameter_name,
+            value_numeric: numeric ? Number(value) : null,
+            value_text: numeric ? null : String(value),
+            unit: parameter.unit || null,
+          };
+        }),
+      }));
 
-                parameter_name:
-                  parameter.parameter_name,
+      const response = await fetch(API_URL + "/lab-results/batch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+        body: JSON.stringify({
+          patient_id: Number(patientId),
+          tests,
+        }),
+      });
 
-                value_numeric:
-                  Number(value),
-
-                value_text: null,
-
-                unit:
-                  parameter.unit ||
-                  null,
-              };
-            }
-
-            return {
-              reference_range_id:
-                parameter.id,
-
-              parameter_name:
-                parameter.parameter_name,
-
-              value_numeric:
-                null,
-
-              value_text:
-                String(value),
-
-              unit:
-                parameter.unit ||
-                null,
-            };
-          }
-        );
-
-      const response = await fetch(
-        API_URL + "/lab-results",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-
-            Accept:
-              "application/json",
-
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
-
-          body: JSON.stringify({
-            patient_id:
-              Number(patientId),
-
-            test_type_id:
-              Number(testTypeId),
-
-            parameters:
-              formattedParameters,
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         if (data.errors) {
-          const firstError =
-            Object.values(
-              data.errors
-            )[0];
+          const firstError = Object.values(data.errors)[0];
 
-          if (
-            Array.isArray(
-              firstError
-            )
-          ) {
-            throw new Error(
-              firstError[0]
-            );
+          if (Array.isArray(firstError)) {
+            throw new Error(firstError[0]);
           }
         }
 
-        throw new Error(
-          data.message ||
-            "Failed to save the laboratory result."
-        );
+        throw new Error(data.message || "Failed to save the laboratory results.");
       }
+
+      const saved = data.lab_results || [];
 
       setSuccess(
-        "Laboratory result successfully submitted for Doctor review."
+        saved.length > 1
+          ? saved.length + " laboratory results successfully submitted for Doctor review."
+          : "Laboratory result successfully submitted for Doctor review."
       );
 
-      if (data.lab_result && data.lab_result.ml_predicted_diagnosis) {
-        setMlPrediction({
-          diagnosis: data.lab_result.ml_predicted_diagnosis,
-          confidence: data.lab_result.ml_prediction_confidence,
-        });
-      }
+      setMlPredictions(
+        saved
+          .filter((r) => r.ml_predicted_diagnosis)
+          .map((r) => ({
+            test: r.test_type?.name || testName(r.test_type_id),
+            diagnosis: r.ml_predicted_diagnosis,
+            confidence: r.ml_prediction_confidence,
+          }))
+      );
 
       setPatientId("");
-
       setPatientSearch("");
-
-      setPatientDropdownOpen(
-        false
-      );
-
-      setTestTypeId("");
-
-      setParameters([]);
-
-      setParameterValues(
-        EMPTY_PARAMETER_VALUES
-      );
+      setPatientDropdownOpen(false);
+      setSelectedTestIds([]);
+      setParameterValues(EMPTY_PARAMETER_VALUES);
     } catch (err) {
-      console.error(
-        "Submit laboratory result error:",
-        err
-      );
+      console.error("Submit laboratory result error:", err);
 
-      setError(
-        err.message ||
-          "Unable to save the laboratory result."
-      );
+      setError(err.message || "Unable to save the laboratory results.");
     } finally {
       setSubmitting(false);
     }
@@ -594,10 +551,8 @@ export default function EncodeResults() {
   // ==========================================
   // SELECTED TEST
   // ==========================================
-  const selectedTest = testTypes.find(
-    (test) =>
-      String(test.id) ===
-      String(testTypeId)
+  const allParametersLoaded = selectedTestIds.every(
+    (id) => parametersByTest[id] !== undefined
   );
 
   return (
@@ -622,7 +577,7 @@ export default function EncodeResults() {
             </h1>
 
             <p className="mt-1 text-sm text-gray-500">
-              Enter laboratory test results for a registered patient.
+              Enter the results of one or more laboratory tests for a registered patient, then submit them to the Doctor in one go.
             </p>
 
           </div>
@@ -642,27 +597,27 @@ export default function EncodeResults() {
           )}
 
           {/* ML PREDICTION (shown when the relevant ML microservice responded) */}
-          {mlPrediction && (
-            <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-4 py-3 text-sm">
-              <span className="font-semibold">ML model suggestion:</span>{" "}
-              {formatMlDiagnosis(mlPrediction.diagnosis)}
-              {typeof mlPrediction.confidence === "number" && (
+          {mlPredictions.map((ml) => (
+            <div key={ml.test} className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-4 py-3 text-sm">
+              <span className="font-semibold">ML model suggestion ({ml.test}):</span>{" "}
+              {formatMlDiagnosis(ml.diagnosis)}
+              {typeof ml.confidence === "number" && (
                 <span className="text-blue-600">
                   {" "}
-                  ({Math.round(mlPrediction.confidence * 100)}% confidence)
+                  ({Math.round(ml.confidence * 100)}% confidence)
                 </span>
               )}
               <div className="text-xs text-blue-500 mt-1">
                 This is a supplementary suggestion for the reviewing Doctor,
                 not a final diagnosis.
               </div>
-              {isLowConfidence(mlPrediction.confidence) && (
+              {isLowConfidence(ml.confidence) && (
                 <div className="text-xs text-amber-700 mt-1 font-medium">
                   {LOW_CONFIDENCE_NOTE}
                 </div>
               )}
             </div>
-          )}
+          ))}
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 sm:p-7 max-w-4xl">
 
@@ -967,285 +922,189 @@ export default function EncodeResults() {
               </div>
 
               {/* ================================== */}
-              {/* TEST TYPE */}
+              {/* TESTS (check one or more) */}
               {/* ================================== */}
               <div>
 
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Test Type
-                </label>
-
-                <select
-                  value={testTypeId}
-                  onChange={(event) => {
-                    setTestTypeId(
-                      event.target.value
-                    );
-
-                    setError("");
-                    setSuccess("");
-                  }}
-                  disabled={loadingTests}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:bg-gray-100"
-                >
-
-                  <option value="">
-                    {loadingTests
-                      ? "Loading laboratory tests..."
-                      : testTypes.length ===
-                        0
-                      ? "No laboratory tests found"
-                      : "Select laboratory test"}
-                  </option>
-
-                  {testTypes.map((test) => (
-                    <option
-                      key={test.id}
-                      value={test.id}
-                    >
-                      {test.name}
-                    </option>
-                  ))}
-
-                </select>
-
-                {selectedTest && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    Test code:{" "}
-                    {selectedTest.code}
-                  </p>
-                )}
-
-              </div>
-
-              {/* ================================== */}
-              {/* LABORATORY PARAMETERS */}
-              {/* ================================== */}
-              <div className="border border-gray-200 rounded-xl overflow-hidden">
-
-                <div className="px-5 py-4 bg-gray-50 border-b border-gray-200">
-
-                  <h2 className="text-sm font-semibold text-gray-900">
-                    Laboratory Parameters
-                  </h2>
-
-                  <p className="mt-1 text-xs text-gray-500">
-                    Parameters are loaded from the configured laboratory reference data.
-                  </p>
-
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Laboratory Tests
+                  </label>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-900 text-white">
+                    {selectedTestIds.length}{" "}
+                    {selectedTestIds.length === 1 ? "test" : "tests"} selected
+                  </span>
                 </div>
 
-                {!testTypeId ? (
+                <p className="text-xs text-gray-500 mb-3">
+                  Check every test the patient had. A form for each checked test appears below.
+                </p>
 
-                  <div className="py-12 px-6 text-center">
-
-                    <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl">
-                      +
-                    </div>
-
-                    <h3 className="mt-4 text-sm font-semibold text-gray-900">
-                      Select a laboratory test
-                    </h3>
-
-                    <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
-                      Select a test above to load its configured parameters.
-                    </p>
-
-                  </div>
-
-                ) : loadingParameters ? (
-
-                  <div className="py-12 px-6 text-center">
-
-                    <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3" />
-
-                    <p className="text-sm text-gray-500">
-                      Loading laboratory parameters...
-                    </p>
-
-                  </div>
-
-                ) : parameters.length ===
-                  0 ? (
-
-                  <div className="py-12 px-6 text-center">
-
-                    <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                      !
-                    </div>
-
-                    <h3 className="mt-4 text-sm font-semibold text-gray-900">
-                      No parameters configured
-                    </h3>
-
-                    <p className="mt-1 text-sm text-gray-500 max-w-lg mx-auto">
-                      This laboratory test exists in the system, but its parameters and reference configuration have not been added yet.
-                    </p>
-
-                  </div>
-
+                {loadingTests ? (
+                  <p className="text-sm text-gray-500">Loading laboratory tests...</p>
+                ) : testTypes.length === 0 ? (
+                  <p className="text-sm text-gray-500">No laboratory tests found</p>
                 ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {testTypes.map((test) => {
+                      const checked = selectedTestIds.includes(String(test.id));
 
-                  <div className="divide-y divide-gray-200">
-
-                    {parameters.map(
-                      (parameter) => {
-
-                        const value =
-                          parameterValues[
-                            parameter.id
-                          ] ?? "";
-
-                        return (
-                          <div
-                            key={
-                              parameter.id
-                            }
-                            className="p-5"
-                          >
-
-                            <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-
-                              <div className="flex-1">
-
-                                <label className="block text-sm font-medium text-gray-800 mb-2">
-                                  {
-                                    parameter.parameter_name
-                                  }
-                                </label>
-
-                                {parameter.unit && (
-                                  <p className="text-xs text-gray-500 mb-2">
-                                    Unit:{" "}
-                                    {
-                                      parameter.unit
-                                    }
-                                  </p>
-                                )}
-
-                                {parameter.data_type ===
-                                "numeric" ? (
-
-                                  <input
-                                    type="number"
-                                    step="any"
-                                    value={
-                                      value
-                                    }
-                                    onChange={(
-                                      event
-                                    ) => {
-                                      handleParameterChange(
-                                        parameter.id,
-                                        event
-                                          .target
-                                          .value
-                                      );
-                                    }}
-                                    placeholder="Enter result"
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-                                  />
-
-                                ) : (
-
-                                  <input
-                                    type="text"
-                                    value={
-                                      value
-                                    }
-                                    onChange={(
-                                      event
-                                    ) => {
-                                      handleParameterChange(
-                                        parameter.id,
-                                        event
-                                          .target
-                                          .value
-                                      );
-                                    }}
-                                    placeholder="Enter result"
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-                                  />
-
-                                )}
-
-                              </div>
-
-                              {/* REFERENCE */}
-                              <div className="sm:w-56 bg-gray-50 rounded-lg px-4 py-3">
-
-                                <p className="text-xs font-medium text-gray-500">
-                                  Reference
-                                </p>
-
-                                {parameter.data_type ===
-                                "numeric" ? (
-
-                                  <p className="mt-1 text-sm text-gray-700">
-
-                                    {parameter.low_value !==
-                                      null &&
-                                    parameter.high_value !==
-                                      null
-                                      ? Number(parameter.low_value) +
-                                        " - " +
-                                        Number(parameter.high_value) +
-                                        (parameter.unit
-                                          ? " " +
-                                            parameter.unit
-                                          : "")
-                                      : "Not configured"}
-
-                                  </p>
-
-                                ) : (
-
-                                  <p className="mt-1 text-sm text-gray-700">
-                                    {
-                                      parameter.normal_text ||
-                                      "Not configured"
-                                    }
-                                  </p>
-
-                                )}
-
-                              </div>
-
-                            </div>
-
-                          </div>
-                        );
-                      }
-                    )}
-
+                      return (
+                        <label
+                          key={test.id}
+                          className={
+                            "flex items-center gap-3 min-h-11 px-3 py-2.5 rounded-lg border text-sm cursor-pointer select-none transition " +
+                            (checked
+                              ? "border-gray-900 bg-gray-100 font-semibold text-gray-900"
+                              : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50")
+                          }
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleTest(test.id)}
+                            className="w-4 h-4 accent-gray-900"
+                          />
+                          <span>{test.name}</span>
+                        </label>
+                      );
+                    })}
                   </div>
-
                 )}
 
               </div>
+
+              {/* ================================== */}
+              {/* LABORATORY PARAMETERS (one panel per checked test) */}
+              {/* ================================== */}
+              {selectedTestIds.length === 0 ? (
+
+                <div className="border border-dashed border-gray-300 rounded-xl py-12 px-6 text-center">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl">
+                    +
+                  </div>
+                  <h3 className="mt-4 text-sm font-semibold text-gray-900">
+                    Check at least one laboratory test
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500 max-w-md mx-auto">
+                    The parameters of each checked test are loaded from the configured laboratory reference data.
+                  </p>
+                </div>
+
+              ) : (
+
+                selectedTestIds.map((testId) => {
+                  const params = parametersByTest[testId];
+
+                  return (
+                    <div key={testId} className="border border-gray-200 rounded-xl overflow-hidden">
+
+                      <div className="px-5 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between gap-3">
+                        <div>
+                          <h2 className="text-sm font-semibold text-gray-900">
+                            {testName(testId)}
+                          </h2>
+                          <p className="mt-1 text-xs text-gray-500">
+                            Parameters are loaded from the configured laboratory reference data.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleTest(testId)}
+                          className="shrink-0 px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 bg-white hover:bg-gray-100"
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      {params === undefined ? (
+
+                        <div className="py-10 px-6 text-center">
+                          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-3" />
+                          <p className="text-sm text-gray-500">Loading laboratory parameters...</p>
+                        </div>
+
+                      ) : params.length === 0 ? (
+
+                        <div className="py-10 px-6 text-center">
+                          <h3 className="text-sm font-semibold text-gray-900">No parameters configured</h3>
+                          <p className="mt-1 text-sm text-gray-500 max-w-lg mx-auto">
+                            This laboratory test exists in the system, but its parameters and reference configuration have not been added yet.
+                          </p>
+                        </div>
+
+                      ) : (
+
+                        <div className="divide-y divide-gray-200">
+                          {params.map((parameter) => {
+                            const value = parameterValues[testId + ":" + parameter.id] ?? "";
+
+                            return (
+                              <div key={parameter.id} className="p-5">
+                                <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+
+                                  <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                                      {parameter.parameter_name}
+                                    </label>
+
+                                    {parameter.unit && (
+                                      <p className="text-xs text-gray-500 mb-2">
+                                        Unit: {parameter.unit}
+                                      </p>
+                                    )}
+
+                                    <input
+                                      type={parameter.data_type === "numeric" ? "number" : "text"}
+                                      step={parameter.data_type === "numeric" ? "any" : undefined}
+                                      value={value}
+                                      onChange={(event) => {
+                                        handleParameterChange(testId, parameter.id, event.target.value);
+                                      }}
+                                      placeholder="Enter result"
+                                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+                                    />
+                                  </div>
+
+                                  {/* REFERENCE */}
+                                  <div className="sm:w-56 bg-gray-50 rounded-lg px-4 py-3">
+                                    <p className="text-xs font-medium text-gray-500">Reference</p>
+                                    <p className="mt-1 text-sm text-gray-700">
+                                      {parameter.data_type === "numeric"
+                                        ? formatReferenceRange(parameter)
+                                        : parameter.normal_text || "No reference range"}
+                                    </p>
+                                  </div>
+
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                      )}
+                    </div>
+                  );
+                })
+
+              )}
 
               {/* ================================== */}
               {/* WORKFLOW STATUS */}
               {/* ================================== */}
-              {testTypeId &&
-                parameters.length >
-                  0 && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-
-                    <p className="text-xs font-medium text-gray-500">
-                      Submission status
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold text-gray-900">
-                      Will be submitted as PENDING_REVIEW
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-500">
-                      The result will be stored and prepared for Doctor review.
-                    </p>
-
-                  </div>
-                )}
+              {selectedTestIds.length > 0 && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                  <p className="text-xs font-medium text-gray-500">Submission status</p>
+                  <p className="mt-1 text-sm font-semibold text-gray-900">
+                    {selectedTestIds.length > 1
+                      ? selectedTestIds.length + " results will be submitted as PENDING_REVIEW"
+                      : "Will be submitted as PENDING_REVIEW"}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Each test is saved as its own result, so the Doctor can approve or reject each one. Tests submitted together appear under one QR code for the patient.
+                  </p>
+                </div>
+              )}
 
               {/* ================================== */}
               {/* BUTTONS */}
@@ -1273,14 +1132,15 @@ export default function EncodeResults() {
                     loadingTests ||
                     loadingParameters ||
                     !patientId ||
-                    !testTypeId ||
-                    parameters.length ===
-                      0
+                    selectedTestIds.length === 0 ||
+                    !allParametersLoaded
                   }
                   className="px-5 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting
-                    ? "Saving Result..."
+                    ? "Saving Results..."
+                    : selectedTestIds.length > 1
+                    ? "Submit " + selectedTestIds.length + " Tests for Doctor Review"
                     : "Submit for Doctor Review"}
                 </button>
 

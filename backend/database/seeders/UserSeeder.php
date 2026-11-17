@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Counter/Nurse',
                 'email' => 'counter01@labtest.local',
-                'password' => 'Counter@123',
+                'password' => ' ',
                 'role' => 'COUNTER',
             ]
         );

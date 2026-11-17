@@ -397,7 +397,26 @@
       -0.018423117697238922,
       -0.08124259114265442,
       -0.028700025752186775
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Iron-rich foods include beans, peas, eggs, lean red meat, salmon, tofu, dried fruits, dark green leafy vegetables, and iron-fortified bread and cereal.",
+        "Foods rich in vitamin C help your body absorb iron."
+      ],
+      "routine": [],
+      "avoid": [
+        "Black tea can reduce how well your body absorbs iron."
+      ],
+      "notes": [
+        "These tips apply if your doctor finds that the cause is low iron. Low blood counts can have other causes, so your doctor will check first."
+      ],
+      "sources": [
+        {
+          "title": "Iron-Deficiency Anemia (NHLBI, NIH)",
+          "url": "https://www.nhlbi.nih.gov/health/anemia/iron-deficiency-anemia"
+        }
+      ]
+    }
   },
   {
     "id": "cbc-wbc-low",
@@ -795,7 +814,31 @@
       0.01989019848406315,
       -0.09658702462911606,
       -0.034967873245477676
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Cook meat and eggs all the way through.",
+        "Wash raw fruits and vegetables carefully."
+      ],
+      "routine": [
+        "Wash your hands often.",
+        "Shower or bathe every day."
+      ],
+      "avoid": [
+        "Avoid crowded places and close contact with people who are sick.",
+        "Avoid sharing food, cups, utensils, or toothbrushes."
+      ],
+      "notes": [
+        "These precautions come from CDC guidance for people with a low white blood cell count during cancer treatment. Ask your doctor which ones apply to you.",
+        "Call your doctor right away if you have a fever of 100.4 F (38 C) or higher for more than one hour, or a one-time temperature of 101 F or higher."
+      ],
+      "sources": [
+        {
+          "title": "What You Need to Know: Neutropenia and Risk for Infection (CDC)",
+          "url": "https://www.cdc.gov/cancer/preventinfections/pdf/neutropenia.pdf"
+        }
+      ]
+    }
   },
   {
     "id": "cbc-wbc-high",
@@ -1591,7 +1634,25 @@
       -0.019824650138616562,
       0.043227557092905045,
       -0.06491915136575699
-    ]
+    ],
+    "lifestyle": {
+      "food": [],
+      "routine": [
+        "Walking, stationary cycling, and strength training are examples of activities your doctor may consider suitable. Ask your doctor what is right for you."
+      ],
+      "avoid": [
+        "Your doctor may ask you to avoid strenuous exercise, contact sports, or other activities."
+      ],
+      "notes": [
+        "Get emergency help if bleeding does not stop after pressing on it."
+      ],
+      "sources": [
+        {
+          "title": "Platelet Disorders - Thrombocytopenia (NHLBI, NIH)",
+          "url": "https://www.nhlbi.nih.gov/health/thrombocytopenia"
+        }
+      ]
+    }
   },
   {
     "id": "cbc-platelet-high",
@@ -2387,7 +2448,28 @@
       0.03393416106700897,
       -0.023648161441087723,
       -0.03318767622113228
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Work with a registered dietitian on meal planning and eating habits.",
+        "Eat the right amounts and types of protein. A dietitian can help you decide."
+      ],
+      "routine": [
+        "If you are overweight, ask your doctor about losing weight."
+      ],
+      "avoid": [
+        "Avoid foods high in sodium or salt."
+      ],
+      "notes": [
+        "Ask your doctor how often your urine should be tested again."
+      ],
+      "sources": [
+        {
+          "title": "Albuminuria: Albumin in the Urine (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/kidney-disease/chronic-kidney-disease-ckd/tests-diagnosis/albuminuria-albumin-urine"
+        }
+      ]
+    }
   },
   {
     "id": "ua-blood-high",
@@ -3184,7 +3266,23 @@
       -0.033620089292526245,
       -0.05593258515000343,
       0.03135725483298302
-    ]
+    ],
+    "lifestyle": {
+      "food": [],
+      "routine": [
+        "Drink enough liquids. Water is best. Staying hydrated can help prevent or relieve bladder infections."
+      ],
+      "avoid": [],
+      "notes": [
+        "Cranberry juice, extract, or pills do not treat an existing bladder infection. Researchers do not think diet can treat a bladder infection, so please see your doctor."
+      ],
+      "sources": [
+        {
+          "title": "Eating, Diet, & Nutrition for Bladder Infection in Adults (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/urologic-diseases/bladder-infection-uti-in-adults/eating-diet-nutrition"
+        }
+      ]
+    }
   },
   {
     "id": "ua-glucose-high",
@@ -3582,7 +3680,34 @@
       0.01895218901336193,
       -0.02215960994362831,
       -0.0264950729906559
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Choose meals with fruits, nonstarchy vegetables, whole grains, and protein foods.",
+        "Pick drinks with little or no added sugar, such as water or unsweetened tea or coffee."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week (about 30 minutes on most days), such as brisk walking.",
+        "Get 7 to 8 hours of sleep each night.",
+        "If you are overweight, losing 5% to 7% of your body weight may help."
+      ],
+      "avoid": [
+        "Limit sugary foods and drinks, foods high in saturated fat, and salty foods.",
+        "Limit alcohol.",
+        "Avoid smoking and other tobacco products."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "The Surprising Truth About Prediabetes (CDC)",
+          "url": "https://www.cdc.gov/diabetes/prevention-type-2/truth-about-prediabetes.html"
+        },
+        {
+          "title": "Healthy Living with Diabetes (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/healthy-living-with-diabetes"
+        }
+      ]
+    }
   },
   {
     "id": "fbs-glucose-high",
@@ -3980,7 +4105,34 @@
       -0.02955770678818226,
       -0.02436971291899681,
       0.008024467155337334
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Choose meals with fruits, nonstarchy vegetables, whole grains, and protein foods.",
+        "Pick drinks with little or no added sugar, such as water or unsweetened tea or coffee."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week (about 30 minutes on most days), such as brisk walking.",
+        "Get 7 to 8 hours of sleep each night.",
+        "If you are overweight, losing 5% to 7% of your body weight may help."
+      ],
+      "avoid": [
+        "Limit sugary foods and drinks, foods high in saturated fat, and salty foods.",
+        "Limit alcohol.",
+        "Avoid smoking and other tobacco products."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "The Surprising Truth About Prediabetes (CDC)",
+          "url": "https://www.cdc.gov/diabetes/prevention-type-2/truth-about-prediabetes.html"
+        },
+        {
+          "title": "Healthy Living with Diabetes (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/healthy-living-with-diabetes"
+        }
+      ]
+    }
   },
   {
     "id": "fbs-glucose-low",
@@ -4776,7 +4928,36 @@
       -0.05487735569477081,
       -0.07030539959669113,
       0.04458483308553696
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Choose meals with fruits, nonstarchy vegetables, whole grains, and protein foods.",
+        "Pick drinks with little or no added sugar, such as water or unsweetened tea or coffee."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week (about 30 minutes on most days), such as brisk walking.",
+        "Get 7 to 8 hours of sleep each night.",
+        "If you are overweight, losing 5% to 7% of your body weight may help."
+      ],
+      "avoid": [
+        "Limit sugary foods and drinks, foods high in saturated fat, and salty foods.",
+        "Limit alcohol.",
+        "Avoid smoking and other tobacco products."
+      ],
+      "notes": [
+        "These tips apply to prediabetes and diabetes. A high HbA1c can point to either, so ask your doctor what applies to you."
+      ],
+      "sources": [
+        {
+          "title": "The Surprising Truth About Prediabetes (CDC)",
+          "url": "https://www.cdc.gov/diabetes/prevention-type-2/truth-about-prediabetes.html"
+        },
+        {
+          "title": "Healthy Living with Diabetes (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/healthy-living-with-diabetes"
+        }
+      ]
+    }
   },
   {
     "id": "lipid-cholesterol-high",
@@ -5175,7 +5356,34 @@
       0.02990501932799816,
       0.03187812492251396,
       0.06902901083230972
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Choose fruits, vegetables, beans and other legumes, nuts, whole grains, low-fat or non-fat dairy, fish, skinless poultry, and lean meats in moderate amounts.",
+        "Eat more soluble fiber, found in fruits, beans, and oats.",
+        "Season meals with salt-free spices and herbs."
+      ],
+      "routine": [
+        "Get regular physical activity and sit less.",
+        "If you have extra weight, especially around the waist, losing it can help. For adults with overweight or obesity, losing 3% to 5% of body weight can lower LDL cholesterol."
+      ],
+      "avoid": [
+        "Cut back on saturated fat and dietary cholesterol.",
+        "Limit sodium to 2,300 mg a day.",
+        "Avoid smoking and keep other heart risks, such as high blood pressure, under control."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "Therapeutic Lifestyle Changes to Lower Cholesterol (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/TLC-Therapeutic-Lifestyle-Changes-Lower-Cholesterol"
+        },
+        {
+          "title": "Blood Cholesterol: Treatment (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/blood-cholesterol/treatment"
+        }
+      ]
+    }
   },
   {
     "id": "lipid-hdl-low",
@@ -5573,7 +5781,25 @@
       0.049894049763679504,
       0.007602466735988855,
       0.04781518504023552
-    ]
+    ],
+    "lifestyle": {
+      "food": [],
+      "routine": [
+        "Physical activity can raise your \"good\" HDL cholesterol. Ask your doctor which level is right for you before you start.",
+        "For adults with overweight or obesity, losing 3% to 5% of body weight can raise HDL.",
+        "Long-lasting stress can sometimes lower HDL, so look for ways to manage stress."
+      ],
+      "avoid": [
+        "Avoid smoking. Quitting smoking is listed as a lifestyle change for healthier cholesterol."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "Blood Cholesterol: Treatment (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/blood-cholesterol/treatment"
+        }
+      ]
+    }
   },
   {
     "id": "lipid-triglycerides-high",
@@ -5971,7 +6197,28 @@
       -0.011184155941009521,
       0.007551577873528004,
       0.03266582265496254
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Choose heart-healthy foods."
+      ],
+      "routine": [
+        "Get regular physical activity. Ask your doctor which level is right for you before you start.",
+        "Aim for a healthy weight.",
+        "Try to get enough good-quality sleep and manage stress."
+      ],
+      "avoid": [
+        "Limit alcohol. If your level is very high, your doctor may advise you to stop drinking alcohol.",
+        "Avoid smoking."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "High Blood Triglycerides (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/high-blood-triglycerides"
+        }
+      ]
+    }
   },
   {
     "id": "creat-high",
@@ -6369,7 +6616,27 @@
       -0.010569916106760502,
       -0.10464026033878326,
       0.048715610057115555
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Work with a registered dietitian, if possible, to make an eating plan that fits you. There is no single meal plan for everyone with kidney problems.",
+        "Eat larger portions of fruits and vegetables and smaller portions of foods rich in phosphorus."
+      ],
+      "routine": [],
+      "avoid": [
+        "Limit sodium to no more than 2,300 mg a day. Many people with kidney disease need even less.",
+        "Limit packaged and processed foods with added phosphorus. Check labels for \"phosphorus\" or \"PHOS\"."
+      ],
+      "notes": [
+        "These tips come from advice for people with chronic kidney disease. A high creatinine result alone does not confirm kidney disease. Your protein and fluid needs depend on you, so ask your doctor or a dietitian before changing them."
+      ],
+      "sources": [
+        {
+          "title": "Healthy Eating for Adults with Chronic Kidney Disease (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/kidney-disease/chronic-kidney-disease-ckd/healthy-eating-adults-chronic-kidney-disease"
+        }
+      ]
+    }
   },
   {
     "id": "bun-high",
@@ -7563,7 +7830,30 @@
       0.003201398765668273,
       -0.05287870392203331,
       0.029647503048181534
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Foods low in purines are important for managing gout."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week at moderate intensity."
+      ],
+      "avoid": [
+        "Limit red meats and organ meats.",
+        "Limit certain seafood such as anchovies, sardines, mussels, scallops, trout, and tuna.",
+        "Limit alcohol, especially beer and hard liquor.",
+        "Limit sugary foods and drinks."
+      ],
+      "notes": [
+        "These tips come from advice about gout. Many people have high uric acid without any health problem, so ask your doctor whether they apply to you."
+      ],
+      "sources": [
+        {
+          "title": "Gout (CDC)",
+          "url": "https://www.cdc.gov/arthritis/gout/index.html"
+        }
+      ]
+    }
   },
   {
     "id": "sgot-ast-high",
@@ -7961,7 +8251,29 @@
       0.004379839636385441,
       -0.013586805202066898,
       0.006879701744765043
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Eat more low-glycemic foods, such as most fruits, vegetables, and whole grains.",
+        "Replace saturated and trans fats with unsaturated fats, especially omega-3 fatty acids."
+      ],
+      "routine": [
+        "Eat a healthy diet, keep portion sizes in check, and keep a healthy weight. If you are overweight, your doctor may advise losing weight gradually."
+      ],
+      "avoid": [
+        "Minimize alcohol, which can further damage the liver.",
+        "Avoid foods and drinks with a lot of simple sugars, especially fructose, such as sweetened soft drinks, sports drinks, sweetened tea, and juices."
+      ],
+      "notes": [
+        "These tips come from advice for fatty liver disease. A high liver enzyme can have other causes, so your doctor will decide what applies to you."
+      ],
+      "sources": [
+        {
+          "title": "Eating, Diet, & Nutrition for NAFLD & NASH (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/liver-disease/nafld-nash/eating-diet-nutrition"
+        }
+      ]
+    }
   },
   {
     "id": "sgpt-alt-high",
@@ -8359,7 +8671,29 @@
       0.00616208603605628,
       -0.0678420439362526,
       0.008301456458866596
-    ]
+    ],
+    "lifestyle": {
+      "food": [
+        "Eat more low-glycemic foods, such as most fruits, vegetables, and whole grains.",
+        "Replace saturated and trans fats with unsaturated fats, especially omega-3 fatty acids."
+      ],
+      "routine": [
+        "Eat a healthy diet, keep portion sizes in check, and keep a healthy weight. If you are overweight, your doctor may advise losing weight gradually."
+      ],
+      "avoid": [
+        "Minimize alcohol, which can further damage the liver.",
+        "Avoid foods and drinks with a lot of simple sugars, especially fructose, such as sweetened soft drinks, sports drinks, sweetened tea, and juices."
+      ],
+      "notes": [
+        "These tips come from advice for fatty liver disease. A high liver enzyme can have other causes, so your doctor will decide what applies to you."
+      ],
+      "sources": [
+        {
+          "title": "Eating, Diet, & Nutrition for NAFLD & NASH (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/liver-disease/nafld-nash/eating-diet-nutrition"
+        }
+      ]
+    }
   },
   {
     "id": "electrolytes-abnormal",

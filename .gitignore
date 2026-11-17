@@ -4,3 +4,6 @@ Claude outputs/
 __pycache__/
 *.pyc
 .env
+
+# Local backup copies
+*.bak*

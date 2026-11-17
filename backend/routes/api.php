@@ -31,6 +31,8 @@ Route::get('/test-types/{testType}/parameters', [ReferenceRangeController::class
 // sees any other patient's data.
 // -----------------------------------------------------------------------
 Route::get('/lab-results/access/{token}', [LabResultController::class, 'showByToken']);
+Route::post('/lab-results/access/{token}/recommendation/translate', [LabResultController::class, 'translateByToken'])
+    ->middleware('throttle:6,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -50,14 +52,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lab-results', [LabResultController::class, 'index']);
     Route::get('/lab-results/{labResult}', [LabResultController::class, 'show']);
 
-    // Medical Technologist actions: manage patient records and encode/edit
-    // laboratory results.
+    // Medical Technologist actions: update patient records and encode/edit
+    // laboratory results. Registering a patient moved to the Counter/Nurse.
     Route::middleware('role:Medical Technologist')->group(function () {
-        Route::post('/patients', [PatientController::class, 'store']);
         Route::put('/patients/{patient}', [PatientController::class, 'update']);
         Route::delete('/patients/{patient}', [PatientController::class, 'destroy']);
 
         Route::post('/lab-results', [LabResultController::class, 'store']);
+        // Several tests of one patient at once (same request_group, one QR code).
+        Route::post('/lab-results/batch', [LabResultController::class, 'storeBatch']);
         Route::put('/lab-results/{labResult}', [LabResultController::class, 'update']);
         Route::post('/lab-results/{labResult}/cancel', [LabResultController::class, 'cancel']);
     });
@@ -68,10 +71,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/lab-results/{labResult}/reject', [LabResultController::class, 'reject']);
         Route::post('/lab-results/{labResult}/recommendation/preview', [LabResultController::class, 'previewRecommendation']);
         Route::put('/lab-results/{labResult}/recommendation', [LabResultController::class, 'updateRecommendation']);
+        Route::post('/lab-results/{labResult}/recommendation/translate', [LabResultController::class, 'translateRecommendation']);
     });
 
-    // Counter/Nurse actions: patient check-in and QR-based result release.
+    // Counter/Nurse actions: patient registration, sending the patient to
+    // the MedTech, and QR-based result release.
     Route::middleware('role:COUNTER')->group(function () {
+        Route::post('/patients', [PatientController::class, 'store']);
+        Route::post('/patients/{patient}/send-to-medtech', [PatientController::class, 'sendToMedtech']);
+
         Route::post('/lab-results/{labResult}/qr-token', [LabResultController::class, 'regenerateAccessToken']);
     });
 });

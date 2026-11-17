@@ -66,6 +66,7 @@ class SeedKnowledgeBase extends Command
                 'content' => $entry['content'],
                 'source_title' => $entry['source_title'],
                 'source_url' => $entry['source_url'],
+                'lifestyle' => isset($entry['lifestyle']) ? json_encode($entry['lifestyle']) : null,
                 'updated_at' => now(),
             ];
 

@@ -13,6 +13,7 @@ class LabResult extends Model
         'patient_id',
         'test_type_id',
         'encoded_by',
+        'request_group',
         'reviewed_by',
         'status',
         'submitted_at',

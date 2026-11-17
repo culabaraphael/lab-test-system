@@ -76,7 +76,7 @@ export default function MedTechLayout({ children, title, subtitle }) {
             <div>
               <h1 className="font-semibold text-sm">Lab System</h1>
               <p className="text-[11px] text-gray-500">
-                Esperanza Municipal Hospital
+                Esperanza MediCare Community Hospital
               </p>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function MedTechLayout({ children, title, subtitle }) {
             <div>
               <h1 className="font-semibold text-sm">Lab System</h1>
               <p className="text-[11px] text-gray-500">
-                Esperanza Municipal Hospital
+                Esperanza MediCare Community Hospital
               </p>
             </div>
           </div>

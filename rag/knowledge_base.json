@@ -11,7 +11,26 @@
     "title": "Low hemoglobin, hematocrit, or red blood cell count (possible anemia)",
     "content": "Abnormal red blood cell, hemoglobin, or hematocrit levels can be a sign of anemia, heart disease, or too little iron in the body, and the page also lists dehydration as something that can affect these values. On its own this single result cannot say which cause it is, and more tests may be needed. General guidance: talk with a doctor to learn what the result means, since the right next step depends on the cause.",
     "source_title": "Complete Blood Count (CBC): MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/"
+    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+    "lifestyle": {
+      "food": [
+        "Iron-rich foods include beans, peas, eggs, lean red meat, salmon, tofu, dried fruits, dark green leafy vegetables, and iron-fortified bread and cereal.",
+        "Foods rich in vitamin C help your body absorb iron."
+      ],
+      "routine": [],
+      "avoid": [
+        "Black tea can reduce how well your body absorbs iron."
+      ],
+      "notes": [
+        "These tips apply if your doctor finds that the cause is low iron. Low blood counts can have other causes, so your doctor will check first."
+      ],
+      "sources": [
+        {
+          "title": "Iron-Deficiency Anemia (NHLBI, NIH)",
+          "url": "https://www.nhlbi.nih.gov/health/anemia/iron-deficiency-anemia"
+        }
+      ]
+    }
   },
   {
     "id": "cbc-wbc-low",
@@ -23,7 +42,31 @@
     "title": "Low white blood cell count",
     "content": "A low white blood cell count can be a sign of an autoimmune disorder, a bone marrow problem, or cancer. An abnormal result does not always mean a medical condition that needs treatment, and it does not diagnose any of these by itself. General guidance: talk with a doctor to learn what the result means rather than assuming the cause.",
     "source_title": "Complete Blood Count (CBC): MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/"
+    "source_url": "https://medlineplus.gov/lab-tests/complete-blood-count-cbc/",
+    "lifestyle": {
+      "food": [
+        "Cook meat and eggs all the way through.",
+        "Wash raw fruits and vegetables carefully."
+      ],
+      "routine": [
+        "Wash your hands often.",
+        "Shower or bathe every day."
+      ],
+      "avoid": [
+        "Avoid crowded places and close contact with people who are sick.",
+        "Avoid sharing food, cups, utensils, or toothbrushes."
+      ],
+      "notes": [
+        "These precautions come from CDC guidance for people with a low white blood cell count during cancer treatment. Ask your doctor which ones apply to you.",
+        "Call your doctor right away if you have a fever of 100.4 F (38 C) or higher for more than one hour, or a one-time temperature of 101 F or higher."
+      ],
+      "sources": [
+        {
+          "title": "What You Need to Know: Neutropenia and Risk for Infection (CDC)",
+          "url": "https://www.cdc.gov/cancer/preventinfections/pdf/neutropenia.pdf"
+        }
+      ]
+    }
   },
   {
     "id": "cbc-wbc-high",
@@ -47,7 +90,25 @@
     "title": "Low platelet count (thrombocytopenia)",
     "content": "A low platelet count (thrombocytopenia) can cause bleeding, ranging from mild to serious, and the bleeding can be external or internal. If the problem is mild, treatment may not be needed; in more serious cases, medicines or blood or platelet transfusions may be needed, which only a doctor can decide. General guidance: discuss this result with a doctor.",
     "source_title": "Platelet Disorders: MedlinePlus",
-    "source_url": "https://medlineplus.gov/plateletdisorders.html"
+    "source_url": "https://medlineplus.gov/plateletdisorders.html",
+    "lifestyle": {
+      "food": [],
+      "routine": [
+        "Walking, stationary cycling, and strength training are examples of activities your doctor may consider suitable. Ask your doctor what is right for you."
+      ],
+      "avoid": [
+        "Your doctor may ask you to avoid strenuous exercise, contact sports, or other activities."
+      ],
+      "notes": [
+        "Get emergency help if bleeding does not stop after pressing on it."
+      ],
+      "sources": [
+        {
+          "title": "Platelet Disorders - Thrombocytopenia (NHLBI, NIH)",
+          "url": "https://www.nhlbi.nih.gov/health/thrombocytopenia"
+        }
+      ]
+    }
   },
   {
     "id": "cbc-platelet-high",
@@ -71,7 +132,28 @@
     "title": "Protein in urine (proteinuria)",
     "content": "Protein in urine can be an early sign of kidney disease before symptoms appear, and a large amount (proteinuria) may mean a kidney problem. Kidney disease is more likely in people with conditions such as diabetes and high blood pressure. Protein in urine can also be high for a short time because of things like strenuous exercise, dehydration, diet, stress, or pregnancy. General guidance: follow up with a doctor, who may recommend other urine tests; if protein stays high, more tests are needed to find the cause.",
     "source_title": "Protein in Urine: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/protein-in-urine/"
+    "source_url": "https://medlineplus.gov/lab-tests/protein-in-urine/",
+    "lifestyle": {
+      "food": [
+        "Work with a registered dietitian on meal planning and eating habits.",
+        "Eat the right amounts and types of protein. A dietitian can help you decide."
+      ],
+      "routine": [
+        "If you are overweight, ask your doctor about losing weight."
+      ],
+      "avoid": [
+        "Avoid foods high in sodium or salt."
+      ],
+      "notes": [
+        "Ask your doctor how often your urine should be tested again."
+      ],
+      "sources": [
+        {
+          "title": "Albuminuria: Albumin in the Urine (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/kidney-disease/chronic-kidney-disease-ckd/tests-diagnosis/albuminuria-albumin-urine"
+        }
+      ]
+    }
   },
   {
     "id": "ua-blood-high",
@@ -96,7 +178,23 @@
     "title": "Signs suggestive of a urinary tract infection (bacteria/nitrites, white blood cells)",
     "content": "Nitrites in the urine usually mean a urinary tract infection (UTI), and white blood cells in the urine may also mean a UTI. A negative nitrite result does not rule out a UTI, since some bacteria do not produce nitrites, so you may still have an infection. Common UTI symptoms include burning with urination, frequent urges to urinate, cloudy or reddish or bad-smelling urine, and fever. A UTI that is not treated could spread to the kidneys, which can be serious. A urine culture, where bacteria from the urine are grown in a lab, can confirm the bacteria and guide antibiotic choice. General guidance: talk with a doctor about the result.",
     "source_title": "Nitrites in Urine: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/nitrites-in-urine/"
+    "source_url": "https://medlineplus.gov/lab-tests/nitrites-in-urine/",
+    "lifestyle": {
+      "food": [],
+      "routine": [
+        "Drink enough liquids. Water is best. Staying hydrated can help prevent or relieve bladder infections."
+      ],
+      "avoid": [],
+      "notes": [
+        "Cranberry juice, extract, or pills do not treat an existing bladder infection. Researchers do not think diet can treat a bladder infection, so please see your doctor."
+      ],
+      "sources": [
+        {
+          "title": "Eating, Diet, & Nutrition for Bladder Infection in Adults (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/urologic-diseases/bladder-infection-uti-in-adults/eating-diet-nutrition"
+        }
+      ]
+    }
   },
   {
     "id": "ua-glucose-high",
@@ -108,7 +206,34 @@
     "title": "Glucose in urine",
     "content": "Urine normally contains very little or no glucose, since the kidneys hold on to glucose and send it back to the bloodstream. Diabetes is the most common cause of high urine glucose, but a urine glucose test alone cannot diagnose any condition. General guidance: a doctor will usually order a blood glucose test to find out what is causing it.",
     "source_title": "Glucose in Urine: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/glucose-in-urine-test/"
+    "source_url": "https://medlineplus.gov/lab-tests/glucose-in-urine-test/",
+    "lifestyle": {
+      "food": [
+        "Choose meals with fruits, nonstarchy vegetables, whole grains, and protein foods.",
+        "Pick drinks with little or no added sugar, such as water or unsweetened tea or coffee."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week (about 30 minutes on most days), such as brisk walking.",
+        "Get 7 to 8 hours of sleep each night.",
+        "If you are overweight, losing 5% to 7% of your body weight may help."
+      ],
+      "avoid": [
+        "Limit sugary foods and drinks, foods high in saturated fat, and salty foods.",
+        "Limit alcohol.",
+        "Avoid smoking and other tobacco products."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "The Surprising Truth About Prediabetes (CDC)",
+          "url": "https://www.cdc.gov/diabetes/prevention-type-2/truth-about-prediabetes.html"
+        },
+        {
+          "title": "Healthy Living with Diabetes (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/healthy-living-with-diabetes"
+        }
+      ]
+    }
   },
   {
     "id": "fbs-glucose-high",
@@ -120,7 +245,34 @@
     "title": "High fasting blood glucose (hyperglycemia)",
     "content": "A high blood glucose result may be a sign of prediabetes or diabetes. Other possible causes include an overactive thyroid, pancreatitis, and stress from surgery, serious illness, or trauma. Being inactive or overweight are risk factors for diabetes. General guidance: ask a doctor what the result means; a repeat or additional diabetes testing may be needed to confirm a diagnosis.",
     "source_title": "Blood Glucose Test: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/blood-glucose-test/"
+    "source_url": "https://medlineplus.gov/lab-tests/blood-glucose-test/",
+    "lifestyle": {
+      "food": [
+        "Choose meals with fruits, nonstarchy vegetables, whole grains, and protein foods.",
+        "Pick drinks with little or no added sugar, such as water or unsweetened tea or coffee."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week (about 30 minutes on most days), such as brisk walking.",
+        "Get 7 to 8 hours of sleep each night.",
+        "If you are overweight, losing 5% to 7% of your body weight may help."
+      ],
+      "avoid": [
+        "Limit sugary foods and drinks, foods high in saturated fat, and salty foods.",
+        "Limit alcohol.",
+        "Avoid smoking and other tobacco products."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "The Surprising Truth About Prediabetes (CDC)",
+          "url": "https://www.cdc.gov/diabetes/prevention-type-2/truth-about-prediabetes.html"
+        },
+        {
+          "title": "Healthy Living with Diabetes (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/healthy-living-with-diabetes"
+        }
+      ]
+    }
   },
   {
     "id": "fbs-glucose-low",
@@ -144,7 +296,36 @@
     "title": "High HbA1c (prediabetes or diabetes)",
     "content": "An HbA1c result reflects the average amount of glucose attached to hemoglobin over the past three months, and a high result can point to prediabetes or diabetes. Diabetes can be managed with a healthy diet, weight loss, and more exercise, together with diabetes medicines when prescribed. People with type 2 diabetes must also check their blood sugar regularly. General guidance: discuss this result with a doctor to confirm the diagnosis and plan management.",
     "source_title": "Diabetes Tests: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/diabetes-tests/"
+    "source_url": "https://medlineplus.gov/lab-tests/diabetes-tests/",
+    "lifestyle": {
+      "food": [
+        "Choose meals with fruits, nonstarchy vegetables, whole grains, and protein foods.",
+        "Pick drinks with little or no added sugar, such as water or unsweetened tea or coffee."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week (about 30 minutes on most days), such as brisk walking.",
+        "Get 7 to 8 hours of sleep each night.",
+        "If you are overweight, losing 5% to 7% of your body weight may help."
+      ],
+      "avoid": [
+        "Limit sugary foods and drinks, foods high in saturated fat, and salty foods.",
+        "Limit alcohol.",
+        "Avoid smoking and other tobacco products."
+      ],
+      "notes": [
+        "These tips apply to prediabetes and diabetes. A high HbA1c can point to either, so ask your doctor what applies to you."
+      ],
+      "sources": [
+        {
+          "title": "The Surprising Truth About Prediabetes (CDC)",
+          "url": "https://www.cdc.gov/diabetes/prevention-type-2/truth-about-prediabetes.html"
+        },
+        {
+          "title": "Healthy Living with Diabetes (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/healthy-living-with-diabetes"
+        }
+      ]
+    }
   },
   {
     "id": "lipid-cholesterol-high",
@@ -157,7 +338,34 @@
     "title": "High total or LDL cholesterol",
     "content": "Too much LDL (\"bad\") cholesterol is the main source of blockages in the arteries, because plaque can narrow the arteries or fully block them, which raises the risk of heart disease. Reducing or avoiding foods high in saturated fat and cholesterol, staying active, and managing weight are commonly recommended, and a doctor may prescribe medicine if lifestyle changes are not enough. General guidance: discuss this result with a doctor.",
     "source_title": "Cholesterol Levels: What You Need to Know, MedlinePlus",
-    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels"
+    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels",
+    "lifestyle": {
+      "food": [
+        "Choose fruits, vegetables, beans and other legumes, nuts, whole grains, low-fat or non-fat dairy, fish, skinless poultry, and lean meats in moderate amounts.",
+        "Eat more soluble fiber, found in fruits, beans, and oats.",
+        "Season meals with salt-free spices and herbs."
+      ],
+      "routine": [
+        "Get regular physical activity and sit less.",
+        "If you have extra weight, especially around the waist, losing it can help. For adults with overweight or obesity, losing 3% to 5% of body weight can lower LDL cholesterol."
+      ],
+      "avoid": [
+        "Cut back on saturated fat and dietary cholesterol.",
+        "Limit sodium to 2,300 mg a day.",
+        "Avoid smoking and keep other heart risks, such as high blood pressure, under control."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "Therapeutic Lifestyle Changes to Lower Cholesterol (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/TLC-Therapeutic-Lifestyle-Changes-Lower-Cholesterol"
+        },
+        {
+          "title": "Blood Cholesterol: Treatment (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/blood-cholesterol/treatment"
+        }
+      ]
+    }
   },
   {
     "id": "lipid-hdl-low",
@@ -169,7 +377,25 @@
     "title": "Low HDL cholesterol",
     "content": "HDL (\"good\") cholesterol helps get rid of \"bad\" LDL cholesterol, so a low HDL level can raise cholesterol levels overall. Smoking lowers HDL cholesterol, especially in women. General guidance: not smoking and general heart-healthy habits are commonly recommended; a doctor can advise whether medicine is also needed based on the full lipid profile.",
     "source_title": "Cholesterol Levels: What You Need to Know, MedlinePlus",
-    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels"
+    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels",
+    "lifestyle": {
+      "food": [],
+      "routine": [
+        "Physical activity can raise your \"good\" HDL cholesterol. Ask your doctor which level is right for you before you start.",
+        "For adults with overweight or obesity, losing 3% to 5% of body weight can raise HDL.",
+        "Long-lasting stress can sometimes lower HDL, so look for ways to manage stress."
+      ],
+      "avoid": [
+        "Avoid smoking. Quitting smoking is listed as a lifestyle change for healthier cholesterol."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "Blood Cholesterol: Treatment (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/blood-cholesterol/treatment"
+        }
+      ]
+    }
   },
   {
     "id": "lipid-triglycerides-high",
@@ -181,7 +407,28 @@
     "title": "High triglycerides",
     "content": "High triglyceride levels may increase the risk of heart disease, especially in women. General guidance: losing weight and staying active are commonly recommended, and a doctor can advise on medicine if lifestyle changes are not enough.",
     "source_title": "Cholesterol Levels: What You Need to Know, MedlinePlus",
-    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels"
+    "source_url": "https://medlineplus.gov/lab-tests/cholesterol-levels",
+    "lifestyle": {
+      "food": [
+        "Choose heart-healthy foods."
+      ],
+      "routine": [
+        "Get regular physical activity. Ask your doctor which level is right for you before you start.",
+        "Aim for a healthy weight.",
+        "Try to get enough good-quality sleep and manage stress."
+      ],
+      "avoid": [
+        "Limit alcohol. If your level is very high, your doctor may advise you to stop drinking alcohol.",
+        "Avoid smoking."
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "title": "High Blood Triglycerides (NHLBI)",
+          "url": "https://www.nhlbi.nih.gov/health/high-blood-triglycerides"
+        }
+      ]
+    }
   },
   {
     "id": "creat-high",
@@ -193,7 +440,27 @@
     "title": "High creatinine",
     "content": "High creatinine can be a sign of a kidney problem, including kidney disease or injury (including infection), poor blood flow to the kidneys, a blockage in the urinary system, or kidney failure, and it can also occur with conditions like heart failure or diabetes that affect the kidneys. It is not always kidney-related: dehydration, muscle disorders and injuries, intense exercise, or a diet high in meat can also raise it. General guidance: a single high creatinine result cannot diagnose a specific condition by itself; a doctor will likely want to repeat the test or order additional kidney tests.",
     "source_title": "Creatinine Test: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/creatinine-test/"
+    "source_url": "https://medlineplus.gov/lab-tests/creatinine-test/",
+    "lifestyle": {
+      "food": [
+        "Work with a registered dietitian, if possible, to make an eating plan that fits you. There is no single meal plan for everyone with kidney problems.",
+        "Eat larger portions of fruits and vegetables and smaller portions of foods rich in phosphorus."
+      ],
+      "routine": [],
+      "avoid": [
+        "Limit sodium to no more than 2,300 mg a day. Many people with kidney disease need even less.",
+        "Limit packaged and processed foods with added phosphorus. Check labels for \"phosphorus\" or \"PHOS\"."
+      ],
+      "notes": [
+        "These tips come from advice for people with chronic kidney disease. A high creatinine result alone does not confirm kidney disease. Your protein and fluid needs depend on you, so ask your doctor or a dietitian before changing them."
+      ],
+      "sources": [
+        {
+          "title": "Healthy Eating for Adults with Chronic Kidney Disease (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/kidney-disease/chronic-kidney-disease-ckd/healthy-eating-adults-chronic-kidney-disease"
+        }
+      ]
+    }
   },
   {
     "id": "bun-high",
@@ -229,7 +496,30 @@
     "title": "High uric acid",
     "content": "High uric acid happens when the body makes too much of it or the kidneys do not remove enough, and it can cause gout (painful swelling in the joints), kidney stones, and in more serious cases kidney failure. Many people have high uric acid without any health problems, so an elevated result does not automatically mean disease. Diet changes can help, such as cutting back on high-purine foods like red meat and organ meats, and limiting alcohol and high-fructose corn syrup in soda and sweets. General guidance: a doctor can advise whether medicine or diet changes are needed.",
     "source_title": "Uric Acid Test: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/uric-acid-test"
+    "source_url": "https://medlineplus.gov/lab-tests/uric-acid-test",
+    "lifestyle": {
+      "food": [
+        "Foods low in purines are important for managing gout."
+      ],
+      "routine": [
+        "Be active for at least 150 minutes a week at moderate intensity."
+      ],
+      "avoid": [
+        "Limit red meats and organ meats.",
+        "Limit certain seafood such as anchovies, sardines, mussels, scallops, trout, and tuna.",
+        "Limit alcohol, especially beer and hard liquor.",
+        "Limit sugary foods and drinks."
+      ],
+      "notes": [
+        "These tips come from advice about gout. Many people have high uric acid without any health problem, so ask your doctor whether they apply to you."
+      ],
+      "sources": [
+        {
+          "title": "Gout (CDC)",
+          "url": "https://www.cdc.gov/arthritis/gout/index.html"
+        }
+      ]
+    }
   },
   {
     "id": "sgot-ast-high",
@@ -241,7 +531,29 @@
     "title": "High AST (SGOT)",
     "content": "A high AST level may be due to liver disease, but it can also come from causes outside the liver, including heart procedures or problems, pancreatitis, seizures, surgery, and the use of drugs that are toxic to the liver, especially alcohol. An abnormal result does not always mean a medical condition that needs treatment, since pregnancy, exercise, certain medicines, and age or sex can affect it. General guidance: a doctor may order an ALT test along with AST and will interpret the result with your overall health.",
     "source_title": "AST Test: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/ast-test/"
+    "source_url": "https://medlineplus.gov/lab-tests/ast-test/",
+    "lifestyle": {
+      "food": [
+        "Eat more low-glycemic foods, such as most fruits, vegetables, and whole grains.",
+        "Replace saturated and trans fats with unsaturated fats, especially omega-3 fatty acids."
+      ],
+      "routine": [
+        "Eat a healthy diet, keep portion sizes in check, and keep a healthy weight. If you are overweight, your doctor may advise losing weight gradually."
+      ],
+      "avoid": [
+        "Minimize alcohol, which can further damage the liver.",
+        "Avoid foods and drinks with a lot of simple sugars, especially fructose, such as sweetened soft drinks, sports drinks, sweetened tea, and juices."
+      ],
+      "notes": [
+        "These tips come from advice for fatty liver disease. A high liver enzyme can have other causes, so your doctor will decide what applies to you."
+      ],
+      "sources": [
+        {
+          "title": "Eating, Diet, & Nutrition for NAFLD & NASH (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/liver-disease/nafld-nash/eating-diet-nutrition"
+        }
+      ]
+    }
   },
   {
     "id": "sgpt-alt-high",
@@ -253,7 +565,29 @@
     "title": "High ALT (SGPT)",
     "content": "When liver cells are damaged they release ALT into the bloodstream, so a high level can point to liver injury or disease, such as hepatitis, infection, cirrhosis, a lack of blood flow to the liver, certain medicines, or poisons. As with AST, an abnormal result does not always mean a medical condition that needs treatment, since age, sex, weight, intense exercise, and other factors can affect it. General guidance: ALT is usually measured along with AST, so review the results with a doctor.",
     "source_title": "ALT Test: MedlinePlus Medical Test",
-    "source_url": "https://medlineplus.gov/lab-tests/alt-blood-test/"
+    "source_url": "https://medlineplus.gov/lab-tests/alt-blood-test/",
+    "lifestyle": {
+      "food": [
+        "Eat more low-glycemic foods, such as most fruits, vegetables, and whole grains.",
+        "Replace saturated and trans fats with unsaturated fats, especially omega-3 fatty acids."
+      ],
+      "routine": [
+        "Eat a healthy diet, keep portion sizes in check, and keep a healthy weight. If you are overweight, your doctor may advise losing weight gradually."
+      ],
+      "avoid": [
+        "Minimize alcohol, which can further damage the liver.",
+        "Avoid foods and drinks with a lot of simple sugars, especially fructose, such as sweetened soft drinks, sports drinks, sweetened tea, and juices."
+      ],
+      "notes": [
+        "These tips come from advice for fatty liver disease. A high liver enzyme can have other causes, so your doctor will decide what applies to you."
+      ],
+      "sources": [
+        {
+          "title": "Eating, Diet, & Nutrition for NAFLD & NASH (NIDDK)",
+          "url": "https://www.niddk.nih.gov/health-information/liver-disease/nafld-nash/eating-diet-nutrition"
+        }
+      ]
+    }
   },
   {
     "id": "electrolytes-abnormal",

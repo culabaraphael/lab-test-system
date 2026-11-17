@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AiRecommendation;
 use App\Models\LabResult;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -32,6 +33,12 @@ use Illuminate\Support\Facades\Log;
  */
 class RecommendationService
 {
+    /** True when the last Gemini request failed in a way another model may avoid (overload, timeout, quota). */
+    private bool $lastFailureTransient = false;
+
+    /** Model that produced the text returned by the last successful callGemini(). */
+    private ?string $lastModelUsed = null;
+
     public function __construct(
         private KnowledgeRetrievalService $retrieval = new KnowledgeRetrievalService(),
     ) {
@@ -90,9 +97,11 @@ class RecommendationService
             ['lab_result_id' => $labResult->id],
             [
                 'recommendation_text' => $recommendationText,
-                'model_used' => config('services.gemini.model'),
+                'model_used' => $this->lastModelUsed ?? config('services.gemini.model'),
                 'input_findings' => $abnormalFindings,
                 'retrieved_entry_keys' => array_column($retrievedEntries, 'entry_key'),
+                'lifestyle' => $this->lifestyleForKeys(array_column($retrievedEntries, 'entry_key')),
+                'lifestyle_ceb' => null,
                 'generated_at' => now(),
             ]
         );
@@ -123,11 +132,255 @@ class RecommendationService
     }
 
     /**
+     * Lifestyle tips (daily food, routine, what to avoid) for the retrieved KB
+     * entries. The text comes straight from the cited sources stored in
+     * knowledge_base_entries.lifestyle; the LLM does not write it. Returns null
+     * when none of the entries has lifestyle content.
+     *
+     * @param array<int, string> $entryKeys
+     * @return array{food: array<int,string>, routine: array<int,string>, avoid: array<int,string>, notes: array<int,string>, sources: array<int,array{title:string,url:string}>}|null
+     */
+    public function lifestyleForKeys(array $entryKeys): ?array
+    {
+        if (empty($entryKeys)) {
+            return null;
+        }
+
+        $rows = DB::table('knowledge_base_entries')
+            ->whereIn('entry_key', $entryKeys)
+            ->whereNotNull('lifestyle')
+            ->pluck('lifestyle', 'entry_key');
+
+        $merged = ['food' => [], 'routine' => [], 'avoid' => [], 'notes' => [], 'sources' => []];
+        $seenSources = [];
+
+        foreach ($entryKeys as $key) {
+            if (! isset($rows[$key])) {
+                continue;
+            }
+
+            $item = json_decode($rows[$key], true);
+
+            if (! is_array($item)) {
+                continue;
+            }
+
+            foreach (['food', 'routine', 'avoid', 'notes'] as $field) {
+                foreach (($item[$field] ?? []) as $line) {
+                    if (is_string($line) && trim($line) !== '' && ! in_array($line, $merged[$field], true)) {
+                        $merged[$field][] = $line;
+                    }
+                }
+            }
+
+            foreach (($item['sources'] ?? []) as $source) {
+                $url = $source['url'] ?? null;
+
+                if ($url && ! isset($seenSources[$url])) {
+                    $seenSources[$url] = true;
+                    $merged['sources'][] = ['title' => $source['title'] ?? $url, 'url' => $url];
+                }
+            }
+        }
+
+        foreach (['food', 'routine', 'avoid'] as $field) {
+            $merged[$field] = array_slice($merged[$field], 0, 5);
+        }
+
+        if (empty($merged['food']) && empty($merged['routine']) && empty($merged['avoid'])) {
+            return null;
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Bisaya version of the English explanation AND the lifestyle tips in ONE
+     * request. Lines are numbered so the answer can be matched back. If the
+     * numbering does not come back intact, falls back to translating only the
+     * explanation (the lifestyle tips then stay in English).
+     *
+     * @return array{text: string, lifestyle: ?array}|null
+     */
+    public function translateBundleToBisaya(string $englishText, ?array $lifestyle): ?array
+    {
+        $lines = [preg_replace('/\s+/', ' ', trim($englishText))];
+        $map = [];
+
+        if ($lifestyle) {
+            foreach (['food', 'routine', 'avoid', 'notes'] as $field) {
+                foreach (($lifestyle[$field] ?? []) as $i => $line) {
+                    $lines[] = $line;
+                    $map[] = [$field, $i];
+                }
+            }
+        }
+
+        $numbered = [];
+        foreach ($lines as $n => $line) {
+            $numbered[] = ($n + 1) . '. ' . $line;
+        }
+        $input = implode("\n", $numbered);
+
+        $prompt = <<<PROMPT
+        Translate each numbered line below from English into Cebuano (Bisaya) as commonly
+        spoken in Mindanao, Philippines. Rules: translate faithfully; do not add, remove or
+        soften any statement; do not add advice of your own; keep numbers, units and lab
+        test names (for example mg/dL, Hemoglobin) unchanged; use plain, simple everyday
+        words a patient can understand; plain text only, no markdown, no asterisks.
+        Keep the same numbering and give exactly one output line per input line, in the
+        format "1. translated text". Output only the translated lines.
+
+        {$input}
+        PROMPT;
+
+        $raw = $this->callGemini($prompt);
+
+        if ($raw === null) {
+            return null;
+        }
+
+        // Parse "N. text" lines. A line without a number is a continuation of
+        // the previous numbered line (the model sometimes breaks a long
+        // explanation over several lines); it is appended instead of being
+        // dropped, so the Bisaya text is not cut short.
+        $out = [];
+        $current = null;
+        foreach (preg_split('/\R+/', trim($raw)) as $row) {
+            if (preg_match('/^\s*(\d+)\.\s+(.+)$/u', $row, $m)
+                && (int) $m[1] >= 1 && (int) $m[1] <= count($lines)
+                && ! isset($out[(int) $m[1]])) {
+                $current = (int) $m[1];
+                $out[$current] = trim($m[2]);
+            } elseif ($current !== null && trim($row) !== '') {
+                $out[$current] .= ' ' . trim($row);
+            }
+        }
+
+        $complete = count($out) === count($lines);
+
+        for ($n = 1; $complete && $n <= count($lines); $n++) {
+            $complete = isset($out[$n]);
+        }
+
+        if (! $complete) {
+            Log::warning('Bisaya bundle translation: numbering mismatch, falling back to text only', [
+                'expected' => count($lines),
+                'got' => count($out),
+            ]);
+
+            $textOnly = $this->translateToBisaya($englishText);
+
+            return $textOnly === null ? null : ['text' => $textOnly, 'lifestyle' => null];
+        }
+
+        $cebLifestyle = null;
+
+        if ($lifestyle) {
+            $cebLifestyle = ['food' => [], 'routine' => [], 'avoid' => [], 'notes' => []];
+
+            foreach ($map as $idx => [$field, $i]) {
+                $cebLifestyle[$field][] = $out[$idx + 2];
+            }
+        }
+
+        return ['text' => $out[1], 'lifestyle' => $cebLifestyle];
+    }
+
+    /**
+     * Translates the (doctor-reviewed) English health information into Bisaya
+     * (Cebuano). Uses the same provider chain as generation (Groq, then Gemini).
+     * Returns null on failure. The Doctor reviews and can edit the result.
+     */
+    public function translateToBisaya(string $englishText): ?string
+    {
+        $prompt = <<<PROMPT
+        Translate the patient health information below from English into Cebuano (Bisaya)
+        as commonly spoken in Mindanao, Philippines. Rules: translate faithfully and
+        completely; do not add, remove or soften any statement; do not add advice or
+        explanations of your own; keep numbers, units and lab test names (for example
+        mg/dL, Hemoglobin) unchanged; use plain, simple everyday words a patient can
+        understand; write plain text only, no markdown, no asterisks, no bullet points.
+        Output only the translation.
+
+        English text:
+        {$englishText}
+        PROMPT;
+
+        return $this->callGemini($prompt);
+    }
+
+    /**
      * @param array<int, array{parameter_name: string, value: mixed, unit: ?string, flag: string}> $abnormalFindings
      * @param array<int, array{entry_key: string, title: string, content: string, source_title: string, source_url: string}> $retrievedEntries
      */
     private function buildPrompt(array $abnormalFindings, array $retrievedEntries): string
     {
+        // Only describe findings the retrieved reference material is actually about
+        // (same parameter, compatible direction). The rest are named so the model
+        // can say "your doctor will explain", but must not describe them. Without
+        // this, a CBC with many abnormal values got a text that talked about
+        // red cells, hemoglobin and cell size although the material covered only
+        // white cells and platelets.
+        $uncovered = [];
+
+        if (! empty($retrievedEntries)) {
+            $matches = function (array $f, array $e): bool {
+                $params = $e['parameters'] ?? [];
+                if (is_string($params)) {
+                    $params = json_decode($params, true) ?: [];
+                }
+
+                $sameParam = in_array(
+                    strtolower(trim((string) $f['parameter_name'])),
+                    array_map(fn ($x) => strtolower(trim((string) $x)), $params),
+                    true
+                );
+                $entryFlag = $e['flag'] ?? 'ABNORMAL';
+
+                return $sameParam && ($entryFlag === 'ABNORMAL' || $entryFlag === ($f['flag'] ?? ''));
+            };
+
+            $covered = [];
+            $notCovered = [];
+
+            foreach ($abnormalFindings as $f) {
+                $hit = false;
+                foreach ($retrievedEntries as $e) {
+                    if ($matches($f, $e)) {
+                        $hit = true;
+                        break;
+                    }
+                }
+                $hit ? $covered[] = $f : $notCovered[] = $f;
+            }
+
+            if (! empty($covered)) {
+                $abnormalFindings = $covered;
+                $uncovered = $notCovered;
+
+                // Also drop entries that are about none of the described findings.
+                $retrievedEntries = array_values(array_filter(
+                    $retrievedEntries,
+                    function ($e) use ($covered, $matches) {
+                        foreach ($covered as $f) {
+                            if ($matches($f, $e)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                ));
+            }
+        }
+
+        $uncoveredNote = empty($uncovered)
+            ? ''
+            : "\n\nOther abnormal result(s) with NO reference material: "
+                . implode(', ', array_map(fn ($f) => $f['parameter_name'], $uncovered))
+                . ". Do not describe these or say what they mean. Do not mention their values. "
+                . "Only say that the doctor will explain those other results.";
+
         $findingsText = implode("\n", array_map(
             fn ($f) => sprintf(
                 '- %s: %s%s (Flag: %s)',
@@ -165,42 +418,159 @@ class RecommendationService
         patient; simply say that their doctor will explain that result.
 
         Patient abnormal finding(s):
-        {$findingsText}
+        {$findingsText}{$uncoveredNote}
 
         Reference material (retrieved from a curated, citation-backed knowledge base):
         {$contextText}
 
         Generate a brief, plain-language explanation (3-6 sentences) of what these results
-        may indicate and general lifestyle/wellness guidance, grounded in the reference
-        material above. Write plain text only: no markdown, no asterisks, no bullet points.
+        may indicate, using ONLY facts stated in the reference material above. Do not add
+        causes, risk factors, foods, exercise or lifestyle advice that the reference material
+        does not state; if the material itself gives general guidance, you may restate it.
+        Never say or imply that the patient has a specific condition; describe possibilities
+        with words like "may" or "can". Write plain text only: no markdown, no asterisks, no bullet points.
         Explain what the result means and encourage the patient to talk to their doctor or
         testing site about next steps. Do not instruct the patient to start, stop or change
         any treatment or medication. Do not write a disclaimer; the portal adds one.
         PROMPT;
     }
 
+    /**
+     * Tries the main model first (one retry on temporary server errors), then,
+     * only if GEMINI_FALLBACK_MODEL is set and the failure looks temporary
+     * (overload, timeout, quota on that model), tries the fallback model once.
+     * Each model has its own rate limits, so a fallback also spreads the load.
+     */
     private function callGemini(string $prompt): ?string
     {
+        $primary = config('services.gemini.model');
+        $fallback = config('services.gemini.fallback_model');
+
+        // php artisan serve stops a request after 30s by default. Worst case here is
+        // primary (25s + 3s wait + 25s) plus fallback (25s) = about 78s.
+        @set_time_limit(120);
+
+        // Groq first when GROQ_API_KEY is set. If it fails for any reason, fall through
+        // to Gemini below (when a Gemini key exists). Worst case: Groq 25s + Gemini ~78s.
+        if (config('services.groq.key')) {
+            $groqText = $this->requestGroq($prompt);
+
+            if ($groqText !== null) {
+                return $groqText;
+            }
+
+            Log::warning('AI recommendation: Groq failed, trying Gemini');
+
+            if (! config('services.gemini.key')) {
+                return null;
+            }
+        }
+
+        $text = $this->requestGemini($prompt, $primary, true);
+
+        if ($text !== null) {
+            return $text;
+        }
+
+        if ($fallback && $fallback !== $primary && $this->lastFailureTransient) {
+            Log::warning('AI recommendation: main model failed, trying fallback model', [
+                'primary' => $primary,
+                'fallback' => $fallback,
+            ]);
+
+            return $this->requestGemini($prompt, $fallback, false);
+        }
+
+        return null;
+    }
+
+    /**
+     * Groq (OpenAI-compatible chat completions). Same grounded prompt as Gemini.
+     * Reasoning tokens count toward max_completion_tokens, so the limit is generous.
+     */
+    private function requestGroq(string $prompt): ?string
+    {
+        $apiKey = config('services.groq.key');
+        $model = config('services.groq.model');
+
+        try {
+            $response = Http::timeout(25)
+                ->withToken($apiKey)
+                ->acceptJson()
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => $model,
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                    'max_completion_tokens' => 2048,
+                    'reasoning_effort' => 'low',
+                ]);
+
+            if (! $response->successful()) {
+                Log::warning('AI recommendation failed: non-2xx response from Groq API', [
+                    'model' => $model,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return null;
+            }
+
+            $data = $response->json();
+
+            // Same rule as Gemini: never store a truncated answer.
+            $finishReason = $data['choices'][0]['finish_reason'] ?? null;
+
+            if ($finishReason !== null && $finishReason !== 'stop') {
+                Log::warning('AI recommendation skipped: Groq did not finish normally', [
+                    'finish_reason' => $finishReason,
+                ]);
+                return null;
+            }
+
+            $text = trim((string) ($data['choices'][0]['message']['content'] ?? ''));
+
+            if ($text === '') {
+                Log::warning('AI recommendation failed: empty Groq response', ['data' => $data]);
+                return null;
+            }
+
+            $this->lastModelUsed = $model;
+
+            return trim(str_replace('*', '', $text));
+        } catch (\Throwable $e) {
+            Log::warning('AI recommendation failed: Groq request error', [
+                'model' => $model,
+                'message' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    private function requestGemini(string $prompt, string $model, bool $retryOnServerError): ?string
+    {
         $apiKey = config('services.gemini.key');
-        $model = config('services.gemini.model');
+        $this->lastFailureTransient = false;
 
         if (!$apiKey) {
             Log::warning('AI recommendation skipped: GEMINI_API_KEY not configured');
             return null;
         }
 
-        // php artisan serve stops a request after 30s by default. Gemini may need
-        // up to 3 attempts (20s timeout each, plus 2s and 5s waits), so allow more.
-        @set_time_limit(90);
-
         try {
-            $response = Http::timeout(20)
-                // Gemini sometimes answers 503 "high demand" / 429 for a few seconds.
-                // Retry three times (after 2s, 5s, then 10s) on those temporary errors only. 429 is not retried: with the free tier it usually means the daily quota is used up, and retrying only wastes more requests.
-                ->retry([2000, 5000, 10000], 0, function ($exception) {
+            $http = Http::timeout(25);
+
+            if ($retryOnServerError) {
+                // Gemini sometimes answers 503 "high demand" for a few seconds. Retry once
+                // after 3s on 5xx only. 429 is not retried (daily or per-minute quota:
+                // retrying only wastes more requests), and every retry counts toward the
+                // free-tier limit of 5 requests per minute.
+                $http = $http->retry([3000], 0, function ($exception) {
                     return $exception instanceof RequestException
                         && in_array($exception->response->status(), [500, 502, 503, 504], true);
-                }, throw: false)
+                }, throw: false);
+            }
+
+            $response = $http
                 ->withHeaders([
                     'x-goog-api-key' => $apiKey,
                     'content-type' => 'application/json',
@@ -230,7 +600,10 @@ class RecommendationService
                 ]);
 
             if (!$response->successful()) {
+                $this->lastFailureTransient = in_array($response->status(), [429, 500, 502, 503, 504], true);
+
                 Log::warning('AI recommendation failed: non-2xx response from Gemini API', [
+                    'model' => $model,
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -265,9 +638,15 @@ class RecommendationService
                 return null;
             }
 
+            $this->lastModelUsed = $model;
+
             return trim(str_replace('*', '', $text));
         } catch (\Throwable $e) {
+            // Timeouts and connection errors: another model may answer.
+            $this->lastFailureTransient = true;
+
             Log::warning('AI recommendation failed: request error', [
+                'model' => $model,
                 'message' => $e->getMessage(),
             ]);
             return null;
